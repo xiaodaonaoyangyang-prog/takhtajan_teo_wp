@@ -1,0 +1,19 @@
+name = "takhtajan_teo_wp"
+version = "0.1.0"
+defaultTargets = ["TakhtajanTeo"]
+packagesDir = "D:/lean/lizhong_quasiconformal_teichmuller/.lake/packages"
+
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
+[[require]]
+name = "mathlib"
+path = "D:/lean/mathlib4-latest"
+
+[[require]]
+name = "lizhong_quasiconformal_teichmuller"
+path = "D:/lean/lizhong_quasiconformal_teichmuller"
+
+[[lean_lib]]
+name = "TakhtajanTeo"

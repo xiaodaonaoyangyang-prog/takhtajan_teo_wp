@@ -1,0 +1,487 @@
+# Program G — close every remaining sorry (Claude team, resumed 2026-10-28 after the GPT phase)
+
+USER (2026-10-28): "keep solving sorrys ... if you want to change the statements, you can do it as your wish but log it
+in the memo. keep faithful to the original paper unless the paper itself is wrong. cowork with 6 workers until finish
+all the sorrys."
+
+## Baseline (leader scan 2026-10-28 22:57)
+- 47 open original sorries, all in root-imported files (root TakhtajanTeo.lean md5 d3e2fe7d, 304 imports).
+- GPT-phase WIP in the tree, NOT root-imported, no .olean yet: Ch1/S7DensityCompact, Ch1/S7QParameterL2,
+  Ch2/S5ContinuousAction, Ch2/S4FourthOrderPV (3 stub sorries).
+- GPT state/history: collaboration/ALL_SORRY_PLAN.md, SORRY_CURRENT.md, STATEMENT_CHANGES.md, lean{1..6}.md
+  (GPT lane N ≈ our 下属N lane), statement_changes/lean*.md. Everything GPT accepted is frozen: do not re-prove,
+  re-audit or rebuild it.
+
+## Build scheme for this phase (GPT's direct-publish scheme; no `lake build` until the final certification)
+- The GPT phase published .olean files with `lake env lean -o`, so lake traces are stale since 17:49. A `lake build`
+  now would rebuild a large part of the tree. **Nobody runs `lake build`.** The leader runs ONE full lake build at the
+  very end as final certification.
+- Every compile goes through `collaboration/CompileWithSlot.ps1 -Owner leanN -Source <file> -Log <log>`
+  (下属N uses Owner leanN). It enforces the global limit of 2 Lean processes and ≥ 6 GiB free RAM atomically.
+  Use `-WaitForResources` to queue. Never start `lean`/`lake` any other way. Never kill processes by pattern.
+- Workers may CREATE new modules `TakhtajanTeo/<Ch>/<Name>.lean` that they own (register the name in your own
+  `collaboration/下属N/G_STATUS.md` first) and publish them with `-Publish` so peers can import them.
+  Workers never edit an existing installed file (anything already root-imported, or another worker's module).
+- Original names are closed by the LEADER: relocation (original docstring+statement byte-identical into a host,
+  `:= prefixed_copy args`; lower file keeps a moved-comment), direct compile of lower file + host + root, then
+  `#print axioms <original>` = propext, Classical.choice, Quot.sound only.
+
+## Statement changes (user-authorized, leader decides)
+- Default: frozen. If you find a defect (false, vacuous, junk-value, misformalized), send the leader: old text, new
+  text, a counterexample or the recomputation, the paper line (TT:n), consumers. Stay faithful to the paper unless the
+  paper itself is wrong. Difficulty alone is never a reason to weaken a statement.
+- The leader approves and logs it in `collaboration/STATEMENT_CHANGES.md` (section "Claude Program G"), adds an ERRATA
+  row when the paper is wrong, and applies the edit. Docstring gets `[CORRECTION 2026-10-28, Program G]`.
+
+## Lanes (owner: items; start from the GPT lane log in collaboration/leanN.md)
+- **下属1 — S7** (Ch1/S7_Curvature): thm_7_4, cor_7_5 (F1), thm_7_7, lemma_7_8, cor_7_9 (F2), thm_7_11, cor_7_12,
+  thm_7_14 (F3; D8: strict negativity kept). Owns S7DensityCompact (GPT lean1 WIP: density uniform estimates →
+  S7WPFirstVariation). 
+- **下属2 — S7QParameterL2 first** (GPT lean2 WIP, support for thm_7_4, deliver to 下属1), then Ch1 S1_1:
+  exists_realAnalytic_rep, realAnalyticBeltrami_subgroup, remark_1_2; Ch1 S2 componentT_spec; Appendix A cor_A_4,
+  cor_A_6.
+- **下属3 — Ch1 S5** (S5_ChernForms): thm_5_3, lemma_5_4, prop_5_7, thm_5_10, cor_5_11 (GPT lean3: S5RightTranslation-
+  Coordinates → lemma_5_4); Ch1 S4 remark_4_3.
+- **下属4 — Ch2 S3** (S3_Variations): thm_3_5, lemma_3_6, cor_3_7, thm_3_8, cor_3_9, remark_3_10 (GPT lean4:
+  S3PreSchwarzianKernel → lemma_3_6/remark_3_10).
+- **下属5 — Ch2 S4** (S4_WPPotential): thm_4_1, cor_4_2, remark_4_3, remark_4_4, wpPotential_spec. Owns
+  S4FourthOrderPV (GPT lean5 WIP, 3 stubs).
+- **下属6 — Ch2 S5** (S5_PeriodMapping): nag_sullivan, matAB_spec, prop_5_1, cor_5_2, cor_5_4, remark_5_5,
+  remark_5_8; Appendix B lemma_B_2, remark_B_3. Owns S5ContinuousAction (GPT lean6 WIP). Open defect review:
+  HC/piHat/nag_sullivan pointwise composition of a.e.-representatives (statement_changes/lean6.md) — propose a fix.
+- **Pool (first free worker, ask the leader):** Ch1 S1_3 harmonicGamma_finiteDimensional, lemma_1_9 (Patterson);
+  Ch1 S8 petersson_average, lemma_8_2, lemma_8_4, thm_8_5, eq_8_1.
+
+## Working rules (unchanged from Programs A–F)
+- Prefixed helpers; no new def/structure/instance/set_option/axiom without leader approval; standard axioms only.
+- Big items: INTERFACE (stubs + assembly compiling) to the leader before proving; stubs frozen after GO.
+- Per-item stop rule: report at 1.5× your estimate. Name walls precisely; propose the cheapest correct route.
+- Status: one line per milestone in `collaboration/下属N/G_STATUS.md`; message the leader only on deliveries,
+  interfaces, defects, blockers. Deliveries: file path + md5 + axiom log + which original it closes.
+- No subagents. Update your own memory file at each milestone.
+
+## Log
+- 2026-10-28 22:57 Program G started: 47 open; lanes assigned as above.
+- 2026-10-28 D-NS approved (nag_sullivan continuous inputs + bound; 下属6 G1_NS_DEFECT 395aa8f9); applied at relocation.
+- 2026-10-28 下属2: S7QParameterL2 parked (wall: z-uniform remainder; off-diagonal torus 1.5–2.5k uncertain) pending 下属1's thm_7_4 plan. FUNDED wall (A) real-analytic regularity of w_μ (CK → Stoilow → composition) for realAnalyticBeltrami_subgroup, exists_realAnalytic_rep, remark_1_2: ≈3k, report 4.5k; short scout of cor_A_4/A_6/componentT_spec first.
+- 2026-10-28 下属4: S3 plan approved (G_PLAN 688b79c4; ≈7–12k). lemma_3_6 → remark_3_10 → thm_3_5 → cor_3_7 → W-CONST → thm_3_8 → cor_3_9. Route B scout (weak Stokes) first to avoid the cor_A_4/A_6 dependency.
+- 2026-10-28 下属1 F1 INTERFACE accepted (下属1/G/S7Thm74_INTERFACE.lean 56ff35a2, host Ch1/S7Thm74 s7g_): thm_7_4 + cor_7_5 glued from one frozen stub s7g_first_variation (= 下属2's s7ql_gWP_hasDeriv). 下属2 asked for the off-diagonal L1 scout first (Grunsky route preferred). 下属1 → F2 scout.
+- 2026-10-28 下属2 scout: cor_A_4 1.2–2.5k (walls: inverse continuity, group-inversion continuity), cor_A_6 +0.3–0.6k; componentT_spec conj 1 UNSURE for p ∉ T₀(1) (depends on general Lemma 2.9; statement review needed). (A) route without CK: complexify → holomorphic characteristics by hand-made Picard → analytic IFT → Stoilow; 2.6–3.7k.
+- 2026-10-28 下属6 NS INTERFACE GO (Ch2/S5NagSullivan 77f78867, s5ns_, 9 stubs ~1.6–1.9k, report 2.9k); S5ContinuousAction published by 下属6.
+- 2026-10-28 下属4: route B for lemma_3_6 not cheaper (needs Sobolev/H½ traces of log f'); route A (dilation approximants + Carathéodory kernel + Schwarz reflection) 2.5–4k, depends on cor_A_4/cor_A_6. W-CONST: chart-coordinate mean-value route 1.5–3k. 下属2 queue reordered: off-diag scout → cor_A_4 → cor_A_6 → wall (A).
+- 2026-10-28 Off-diagonal route for s7g_first_variation accepted (下属2 scout: R1 change of variables, R2 Schur test for disjoint sets [leader checked], R3 uniform Whitney/Mori transfer = main risk, R4 torus-Cauchy glue; 2.0–3.2k). Owner 下属1 (before F2); 下属2 writes S7_OFFDIAG_ROUTE.md and continues cor_A_4 → cor_A_6 → (A).
+- 2026-10-28 下属5: S4 plan; remark_4_4 constant −12/π → −6/π APPROVED (paper misprint TT:5387, ERRATA G-1); INTERFACE S4GReductions (a8a450f1; cor_4_2, remark_4_3, wpPotential_spec reduced to thm_4_1 (+thm_3_8.1)) GO. thm_4_1 needs a general first variation of S1 along non-harmonic curves at moving base points — shared with 下属4's W-CONST; owner 下属5 (interface coordinated with 下属4).
+- 2026-10-28 下属1: F2 scout (F2_SCOUT.md): thm_7_7/lemma_7_8/cor_7_9 TRUE; need 2-parameter regularity → R4 retargeted to real-analytic H(e1,ē1,e2,ē2) on a polydisc (approved); F2 funded 1.3–2.3k after it. S7DensityCompact published d429dc4c (frozen).
+- 2026-10-28 下属3: DEFECT G1 — project tcCoord fibre coordinate (Model B normalization) is not holomorphic (s_proj = s_mem − fB''(0)/2), so lemma_5_4 is FALSE (LHS junk 0 vs −2/(1−|z|²)²); thm_5_3, prop_5_7, thm_5_10, cor_5_11 at risk. Fix B (new tcCoordH with shift, leviTC/tcCoordExpr on it, revert D6, horVec shift) approved in principle; waiting for OLD/NEW blocks + holomorphy evidence. S5 plan funded (thm_5_10+cor_5_11 0.3–0.4k, prop_5_7 0.9–1.3k, thm_5_3 1.2–1.8k, lemma_5_4 2.5–3.5k after H5 scout, S4 remark_4_3 1.0–1.5k).
+- 2026-10-28 Fix B APPROVED (G1_FIX_B_BLOCKS dd95e537; logged). Waiting for 下属3's s5vc_levi_vertical replacement proof, then one batch: S5_ChernForms + S5VerticalCurvature publish + direct importers. S5Kappa INTERFACE c42b40de GO.
+- 2026-10-28 下属4 lemma_3_6 INTERFACE GO (下属4/G36/S3Lemma36.lean 9e66a76e, 15 stubs, 2.9–4.9k, report 6k); external dep only s36l_dil_energy ← cor_A_4 (ii)⇒(i) + cor_A_6 cl.2 (下属2).
+- 2026-10-28 下属1 F1 SUB-INTERFACE GO (下属1/G/S7FirstVar_SUBINTERFACE.lean 36b45c5c, host Ch1/S7FirstVariation; R2 Schur, R3 transfer via tp_a_circle (risk settled), R1 polytorus L1, R4a 2-param C², R4b dz formula; 2.85–4.25k, report 6.4k).
+- 2026-10-28 下属2 cor_A_4 INTERFACE GO (G/A4/INTERFACE 58660371, host Appendix/AppACor4 a4_, 5 stubs 1.6–2.6k, report 3.9k); (ii)⇒(i) delivered early for 下属4.
+- 2026-10-28 下属5 DELIVERED S4GReductions (Ch2, 6c469230, published, 9 decls std axioms); cor_4_2/remark_4_3/wpPotential_spec close by one-liners once thm_4_1 (+ Ch2 thm_3_8.1) land.
+- 2026-10-28 G1 fix B APPLIED (apply_g1.py; backups .pre_G1): S5_ChernForms 534fff6a, S5VerticalCurvature 97c691a0 (下属3 proof patch for s5vc_levi_vertical). CompileWithSlot now accepts Owner 'leader'. Publishing both.
+- 2026-10-28 G1 fix B published: S5_ChernForms + S5VerticalCurvature EXIT 0; s5vc_levi_vertical std axioms (leader_g/AuditG1.log). S6 not recompiled (uses no changed name).
+- 2026-10-28 下属2 AppACor4 partial published (5b5232a4, 0 sorry): S1–S3 + a4_ii_imp_i (for 下属4); std axioms; S5 uses Ch1 thm_3_8 (sorry-free, no cycle). Next S4 IFT core.
+- 2026-10-28 下属5 shared S4GFirstVariation INTERFACE GO (6ab10073): (1) s4g_S2_offcentre_variation [shared wall, 1.2–2.0k, stop 3k] → 下属4 thm_3_8 → (2) s4g_S1_offcentre_variation (h38) → thm_4_1. Agreed with 下属4.
+- 2026-10-28 下属3 S5Kappa WIP (d2b903d3): s5k_det, s5k_prod_integrable, s5k_resolvent_mass, s5k_theta_vert proved; Θ horizontal stubs wait on H5/thm_5_3. Now H5 scout.
+- 2026-10-28 下属3 H5 scout GO (H5_SCOUT.md): H5a right-translation holomorphy in tcCoordH 1.35–2.0k (stop 3k), lemma_5_4 total 1.9–2.75k (stop 4.1k); modules S5RightTranslationHol (s5rh_), S5Lemma54. H5a also feeds thm_5_3, prop_5_7, S5Kappa Θ stubs.
+- 2026-10-28 下属5 S4FourthOrderPV complete (d06c4566, 0 sorry, 3 decls std axioms; support for remark_4_4).
+- 2026-10-28 下属5 scout s4g_S2_offcentre_variation: GO, no wall (trace pairing generic; kernel variation needs off-centre Rnm chain-rule identity; HS step re-proved for the affine chart path; trace/log-det wrappers re-instantiated). 1.2–2.0k (high end), stop 3k.
+- 2026-10-28 下属3 H5a INTERFACE GO (S5RH/INTERFACE dc63f2db, host Ch1/S5RightTranslationHol; s5rh_mulInv_holo + s5rh_right_holo assembled; 4 stubs: mulInv_rep, lambda_holo, fibre_holo (main), local_coords).
+- 2026-10-28 下属1 R3 s7g_transfer DELIVERED (Ch1/S7FirstVarTransfer 002898b2, 404 lines, std axioms; via tp_a_circle Whitney distortion). Next R2.
+- 2026-10-28 下属1 R2 s7g_schur DELIVERED (Ch1/S7FirstVarSchur 6d3e1124, 117 lines, C=π via Cauchy–Schwarz + r24_lintegral_outside). Next R1.
+- 2026-10-28 下属3 H5a: stubs 4, 2, 1 proved (S5RH/work.lean 549 lines; wall 1 closed with GPT tcg_* lemmas); stub 3 fibre_holo left (~700–850, plan 3a–3d).
+- 2026-10-28 下属2 cor_A_4 S4 IFT core DONE (AppACor4 15c13d53, ~690 lines, 0 sorry): (i)⇔(ii) complete. Plan: cor_A_6 (ext Bers continuity + exterior IFT) → (i)⇒(iii) → (iii)⇒(i) [risk: group inversion welding]; total 2.4–3.4k. Import S3PreSchwarzianKernel approved.
+- 2026-10-29 下属6 nag_sullivan DELIVERED (S5NagSullivan 38f86d05, 1492 lines, std axioms). D-NS text applied by relocation (reloc_g.py): S5_PeriodMapping e1581b95, host fdb9d92b, root 84e196e1 (+import S5NagSullivan). Compile chain running. 下属2 cor_A_6 INTERFACE GO (A6/INTERFACE 2563d5e4, host AppACor6, T1+T2 0.8–1.1k).
+- 2026-10-29 CLOSED nag_sullivan: chain S5_PeriodMapping/S5NagSullivan/root EXIT 0; #print axioms = std 3. Open 46.
+- 2026-10-29 下属6 matAB_spec INTERFACE GO (Ch2/S5MatAB 159b3ea6, 6 stubs M0–M5 ~650, stop 1k).
+- 2026-10-29 下属1 R1 s7g_L1 DELIVERED (Ch1/S7FirstVarL1 b853866f, 499 lines, std axioms). F1 running total 1020. Next R4a.
+- 2026-10-29 下属1 R4a: option B approved — 1-direction C² stub (rename, re-freeze) ≈0.9–1.3k closes thm_7_4/cor_7_5 first; ℂ⁴ W-REG extension (+0.8–1.3k) later for cor_7_9. T2 (𝔻* double-integral formula for every η, Möbius-invariant kernel) shared.
+- 2026-10-29 下属1 sub-interface RE-FROZEN b5c9cb02 (R4a = s7g_line_C2, 1-direction).
+- 2026-10-29 下属5 S4GFirstVariation DELIVERED (Ch2, 8b0fda8c, 703 lines, 15 decls std axioms): shared s4g_S2_offcentre_variation + s4g_S1_offcentre_variation(h38). 下属4 informed. 下属5 next remark_4_4.
+- 2026-10-29 下属5 thm_4_1: dominated-differentiation route NO-GO (needs Calderón–Zygmund L2(ρ⁻¹) bound for L_μϑ). Option A GO: S2/HS route (off-centre HS derivative D(e1) holomorphic, resolvent trace identity, ∂̄ at 0, Grunsky algebra → −wpInner/(12π)), 1.8–3.0k, report 4.5k; scout (iv) first. remark_4_3 then closes directly.
+- 2026-10-29 下属5 scout (iv) OK: trace terms sum to tr(H_μ*H_ν) via push-through I+B1*RB1=(I−B1*B1)^{-1}=(conj B2 B2^T)^{-1} (leader checked); B2 invertibility from ‖B1‖,‖B4‖<1 (pgb_norm_lt_one); Bergman reproducing gives −wpInner/(12π). Interface next.
+- 2026-10-29 CLOSED matAB_spec (S5MatAB host 85c0854b; S5_PeriodMapping b19c1517; root 0717afa4); std 3. Open 45.
+- 2026-10-29 下属6 remark_B_3 conj 2 proved (Appendix/B3DiffSymmetric b3d_diffT_subset, 107 lines, std 3). Original waits on conj 1 (Hilbert closure = T01). 下属6 → prop_5_1 scout.
+- 2026-10-29 下属6 prop_5_1 scout GO-cond (P51_SCOUT.md, 1.3–1.6k; wall = Faber generating function on 𝔻); INTERFACE Ch2/S5Prop51 approved to write.
+- 2026-10-29 下属5 thm_4_1 S2/HS INTERFACE GO (work/t41/S4GThm41 a99db19b; stubs inner_trace, dzbar_trace, grunsky_trace 1.2–2.1k; s4g_remark_4_3_direct independent of thm_3_8; s4g_thm_4_1 takes h38).
+- 2026-10-29 下属3 H5a DELIVERED (Ch1/S5RightTranslationHol e3d44d10, 1150 lines, std 3): right translation holomorphic in tcCoordH. Next lemma_5_4 INTERFACE (S5Lemma54).
+- 2026-10-29 G1b: base points tcCoord q → tcCoordH q in vkNormSq + lemma_5_4 (S5_ChernForms 574b3a9d, backup .pre_G1b); recompiling.
+- 2026-10-29 下属6 prop_5_1 INTERFACE GO (Ch2/S5Prop51 469e222f, 8 stubs ~1.4–1.6k; convention checked on rotation example).
+- 2026-10-29 下属4 s36l_smooth_pair proved (G36/SP_WORK c9de35c7, 1453 lines incl. helpers, std 3; Green on 𝔻/𝔻*, welding change of variables, degree 1). 14 lemma_3_6 stubs left.
+- 2026-10-29 下属6 prop_5_1: S2 not a wall (faber_grunsky_positive, ~12 lines); S6, S7 compile; remaining S1, S3, S4, S5, S8; new est 1.0–1.2k.
+- 2026-10-29 下属3 lemma_5_4 INTERFACE GO (S5L54/INTERFACE b012eb27, host Ch1/S5Lemma54, 5 stubs 0.8–1.2k). S5RightTranslationHol republished against 574b3a9d.
+- 2026-10-29 下属4 lemma_3_6: 6/15 stubs proved (G36/HOST_WORK d8a91582). Risk: g-side a.e. convergence → pointed to GL lemma1_1 (normalized solutions converge locally uniformly under a.e. coefficient convergence, k<1; References already imported by TT).
+- 2026-10-29 下属4 lemma_3_6 interface amended (internal stub defect: normalization pole may lie in the annulus): s36l_reflect conj 1 → ∃ R'>1; s36l_dil_fsans on unitDisc. Re-frozen G36/S3Lemma36 ebafc44b (draft host bb6408a8, 9 stubs left).
+- 2026-10-29 下属3 S5L54 stub 4 s5l54_levi_chain + [CompleteSpace E] approved (internal). Stubs 1, 5 + c_analytic proved (stub 2 via pole-term identity only).
+- 2026-10-29 CLOSED prop_5_1 (S5Prop51 host 154ec0e0; S5_PeriodMapping 944c4ec8; root cf5c1055); std 3. Open 44.
+- 2026-10-29 CLOSED cor_5_2, cor_5_4, remark_5_5 (S5Cor host 5fe852dc; S5_PeriodMapping 945ac23e; root dfb609c2); std 3. Open 41.
+- 2026-10-29 下属3 S5L54: import S5Lemma51Completed approved; stubs 1, 2, 4, 5 proved; stub 3 metric_law left.
+- 2026-10-29 下属6 lemma_B_2 scout GO (B2_SCOUT 202c4e15; no W-REFL: explicit dilation μ_n, wA holomorphic on the annulus ⇒ diffT; 1.0–1.5k); INTERFACE Appendix/B2Closure next.
+- 2026-10-29 下属4 lemma_3_6: dil_mem, reflect proved; stubs re-parametrized by an a.e.-good sequence ρ (+ stub s36l_dil_seq) approved (internal); 7 convergence stubs left, 1.2–1.8k.
+- 2026-10-29 下属6 lemma_B_2 INTERFACE GO (Appendix/B2Closure 246c1808, L1–L6, 1.0–1.5k).
+- 2026-10-29 下属2 cor_A_6 DELIVERED (AppACor6 16f24adb, 1497 lines, 47 decls std 3). Relocated (A_HilbertStructure 6f61a843, host d358b9bb with ORIGINAL docstring restored, root 2dda2edb); reloc_g.py now keeps the original docstring by default. 下属4 interface re-frozen 0fd59032.
+- 2026-10-29 CLOSED cor_A_6 (std 3). Open 40.
+- 2026-10-29 下属2 cor_A_4 S5: host Appendix/AppACor4Final approved (imports AppACor6); U1–U7 (i)⇒(iii) ~850 GO; (iii)⇒(i) route (a) via curve-group inversion FUNDED (pin the existential Möbius B by welding uniqueness; 1–2k, report at 2k).
+- 2026-10-29 下属5 S4GThm41 DELIVERED (199cb593, 957 lines, 29 decls std 3): s4g_thm_4_1(h38), s4g_remark_4_3_direct, s4g_S2_ddbar. remark_4_3 relocated (S4_WPPotential 4e6180bf, host b05b6d2f, root 83d83ab0); thm_4_1/cor_4_2/wpPotential_spec wait for thm_3_8. 下属5 → remark_4_4.
+- 2026-10-29 下属3 lemma_5_4 DELIVERED (Ch1/S5Lemma54 31196995, 793 lines, std 3; re-frozen IFACE 493017f1). Relocation queued after r43 chain.
+- 2026-10-29 CLOSED Ch2 remark_4_3 (std 3). Open 39.
+- 2026-10-29 下属5 remark_4_4 scout (REMARK44_SCOUT.md): TRUE with −6/π; walls W1 (4th-order PV = dz³ahVar, 0.9–1.4k), W2 (chart → 𝔻* change of variables, sliver cancellation vs S(J) cocycle, 0.9–1.5k, main risk), W3 clause 2 (0.8–1.3k). FULL FUNDED 2.8–4.6k, stop 6k; W2 algebra check first.
+- 2026-10-29 下属3 thm_5_3 scout (T53_SCOUT.md): 2.5–4.5k; walls W1 IsWeldingCurve+hreg construction (1.5–3k, new foundation), W2 K at ∞, W3 Levi/real dictionary, W4 group laws. FUNDED (report 4.5k). Order: bank (ii)⇒(i) → Ch1 S4 remark_4_3 → W4 → W2, W3 → W1 (scout an avoidance route first).
+- 2026-10-29 CLOSED lemma_5_4 (S5_ChernForms 18a2ce49, host 289edb25, root 3e5e780e; std 3). Open 38.
+- 2026-10-29 下属5 remark_4_4 W2 cancellation check PASSES (REMARK44_SCOUT 1d486ae6): S(J) cocycle e-independent, kernel matches TT, sliver terms → 0; −6/π exact, no second erratum. Interface next.
+- 2026-10-29 下属4 lemma_3_6: lhs_tendsto proved; import B_PeriodMapping approved (kerK1_row_sq_le); 7 stubs left.
+- 2026-10-29 下属6 lemma_B_2 DELIVERED (Appendix/B2Closure d6912779, ~520 lines, std 3). Relocated (B_PeriodMapping 996c7123, host 882b8435, root 05afbb4e); compiling. 下属6 → remark_B_3 conj 1 scout.
+- 2026-10-29 下属3: S5Thm53 (416a7944) (ii)⇒(i) reduction banked. Ch1 S4 remark_4_3 scout (R43_SCOUT.md): TRUE, 2–3k, core = real-analyticity of κ ↦ P(R_κ μ); route (b) Bers transport approved; moved to POOL (with S1_3, S8) for the next free worker. 下属3 queue: thm_5_3 W4 → W2/W3 → W1 → prop_5_7 → Θ → thm_5_10/cor_5_11.
+- 2026-10-29 Ch1 S4 remark_4_3 handover note (下属3 R43_SCOUT a14ffe4f): GPT gives ~30% (pointwise analyticity); missing G1 weak⇒Banach holomorphy (0.3–0.5k), G2 transport identity (1–1.5k, decides route), G3 assembly; 1.8–2.5k. In POOL.
+- 2026-10-29 CLOSED lemma_B_2 (std 3). Open 37.
+- 2026-10-29 下属1 F1 DELIVERED (Ch1/S7FirstVariation f61be8bb 1459 lines, Ch1/S7Thm74 26c7fbe5; std 3). Relocated thm_7_4 + cor_7_5 (S7_Curvature b1d13ff9, host 907416eb, root f65b66fc); compiling. 下属1 → F2.
+- 2026-10-29 下属5 remark_4_4 INTERFACE GO (work/r44/IFACE_S4GRemark44 564bf929; W1, W1b, W2a, W2b, W3, W0 [exceptional point w_κ(∞)]; 3.3–5.5k, stop 6k).
+- 2026-10-29 下属6 remark_B_3 conj 1 scout GO (B3_SCOUT; host Appendix/B3Closure b3h_, 0.5–0.85k; W-DIL2 A₂ dilation lemma); closes remark_B_3.
+- 2026-10-29 CLOSED thm_7_4, cor_7_5 (std 3). Open 35.
+- 2026-10-29 下属6 remark_B_3 INTERFACE GO (Appendix/B3Closure 207e16b9, H1–H4; normA2 is ℝ≥0∞ lintegral, no junk).
+- 2026-10-29 下属5 remark_4_4 W0 scout: route (b) (class invariance exists; need explicit τ ~ 0 moving ∞), 0.8–1.2k, last; total 3.6–5.7k; hard stop raised to 7k (report 4.6k).
+- 2026-10-29 下属3 thm_5_3 W4 done: S5TCurveGroup (6a85abec), S5Thm53 updated (0698c738): thm_5_3 reduces to the origin identity leviTC potentialK tOrigin = vkNormSqCoordOrigin. ~0.35k used. Next: origin identity scout (direct route).
+- 2026-10-29 下属2 cor_A_4 (i)⇒(iii) DONE (Appendix/AppACor4Final 5ac2050e, 612 lines, 23 decls std 3; +import L55 approved). (iii)⇒(i) sub-interface R1–R5 GO (S5B_INTERFACE; R1 circle law of tcurveMulInv = wall, 0.9–1.3k; total 1.4–2.0k, report 3k).
+- 2026-10-29 下属3 thm_5_3 origin identity scout (W1_SCOUT): direct route doesn't avoid the core; O1 vertical, O2 mixed=0 (decision), O3 base Levi via welding curves + G1 weak⇒strong holomorphy (shared with remark_4_3, to be a standalone module); 2.5–3.5k. Approved.
+- 2026-10-29 下属2 cor_A_4 (iii)⇒(i): partner route approved (R1' sharp_exists via tce_surj, R2 w/o T01 hyps, R3' symmetry, R4b conj A21) — avoids the tcurveMulInv circle law; 0.8–1.1k.
+- 2026-10-29 下属6 remark_B_3 DELIVERED (Appendix/B3Closure ef7fdb1b, 411 lines, std 3); relocated (B_PeriodMapping 15b47c5d, host 2fca6054, root 1d6981c6); compiling. 下属6 → remark_5_8 real scout, then POOL Ch1 S4 remark_4_3. 下属2 S5B re-frozen 7d863ab0.
+- 2026-10-29 下属3 thm_5_3: O1 done (S5Thm53 b657cf30); O2 reduces to ∂_t c = conj ∂_t̄ b; option (B) approved: full welding curve incl. σ-factor, lemma_5_1 pt 2 + eq_5_3_5_4 give whole VK form; next G1 WeakHolomorphy.
+- 2026-10-29 下属1 thm_7_7 sub-interface GO (F2_SUBINTERFACE 742eaa55; P²=P route, no Q̈ integrability; 2.1–2.3k). lemma_7_8 wall on torus route → explicit I1–I4 formula + Beurling (1.5–2.5k), moved to POOL (handover L78_HANDOVER.md). 下属1 queue: thm_7_7 → cor_7_9 → F3.
+- 2026-10-29 CLOSED remark_B_3 (std 3). Open 34.
+- 2026-10-29 下属1 F2 interface docstring update d7036abc; lemma_7_8 handover L78_HANDOVER.md fb17693b (POOL).
+- 2026-10-29 下属4 lemma_3_6: lhs_tendsto + K1_tendsto proved (HOST_WORK e4d48a94, 6 stubs left); forecast 5.5–7.5k → budget raised to 7.5k (report 8k); pointed to AppACont as template for a.e. Model A/B continuity (via GL lemma1_1).
+- 2026-10-29 下属6 remark_5_8 scout (R58_SCOUT): TRUE; (⇒) 1.4–2.3k no wall; (⇐) wall W-QD (Grunsky κ<1 ⇒ quasicircle, Pommerenke Ch.9; 3–6k). FUNDED 4.5–8.5k after Ch1 S4 remark_4_3 (下属6 now on G2).
+- 2026-10-29 下属6 Ch1 S4 remark_4_3 G2 scout: G2a change-of-variables identity 0.4–0.7k; G2b A₂-holomorphy of the RHS in (κ, κ*) needs L^p (Ahlfors–Bers) theory 1.5–3k; total 2.6–4.5k. Short AW-route scout approved (localize via right translation); funded up to 4.5k.
+- 2026-10-29 下属6 Ch1 S4 remark_4_3: AW route chosen (domain ball √(π/3) ⊂ AW range; W_p = T_p∘V; no L^p theory), 2.2–3.5k; host Ch1/R43Analytic r43_.
+- 2026-10-29 下属3 G1 DELIVERED Ch1/WeakHolomorphy (afa21806, 289 lines, std 3; wh_differentiableOn, wh_lp_continuousOn, wh_lp_differentiableOn), shared with 下属6. thm_5_3 total ≈0.8k; next O3 welding curve.
+- 2026-10-29 下属2 cor_A_4 COMPLETE (AppACor4Final ea25e819, 1316 lines, 43 decls std 3); relocated (A_HilbertStructure 3291d4bf, host 0dc0e241, root 1f2ae7bb); compiling. 下属2 → wall (A).
+- 2026-10-29 CLOSED cor_A_4 (std 3). Open 33. Appendix A + B sorry-free.
+- 2026-10-29 下属6 Ch1 S4 remark_4_3 INTERFACE GO (Ch1/R43Analytic 0d685247, R0–R5: coefficient-wise ℓ² pairing, AW+transition holomorphy, uniform bound, generic real-analytic pairing).
+- 2026-10-29 下属6 R43 R2 constant check passed (w_k·C(k+3,3) = π/3; leader re-derived w_k = 2π/((k+1)(k+2)(k+3))); R0, R1 compile.
+- 2026-10-29 下属3 thm_5_3 O3 INTERFACE GO (S5T53/INTERFACE_O3 f214b8c1): single stub (A) s5t53_K_line (2nd real derivative along coordinate line = 2·VK norm); origin identity + thm_5_3 proved from it. ~0.9k used.
+- 2026-10-29 下属3 thm_5_3 SUB_A GO (A1 s5t53_curve: welding curve + hreg + K = log|G'(∞)| + VK match); walls hreg (Banach-domain weak holomorphy, shared with 下属6 R43 R5), velocity identity, K at w=∞.
+- 2026-10-29 下属6 R43 R5 + [CompleteSpace E] approved (internal; shared wh_lp_banach with 下属3).
+- 2026-10-29 下属2 wall (A) INTERFACE GO (RA/INTERFACE 9ddde54b, host Ch1/BeltramiRealAnalytic ra_; R1 local real-analytic Beltrami solution [wall, CK], R2–R7); closes realAnalyticBeltrami_subgroup, exists_realAnalytic_rep, remark_1_2; funding 4.75k, stop 6k.
+- 2026-10-29 下属6 R43Analytic re-frozen eda780f0.
+- 2026-10-29 下属3 shared wh_lp_banach published (WeakHolomorphy ac3d2b7d; Banach-domain ℓ² holomorphy).
+- 2026-10-29 下属3 thm_5_3 SUB_A1 GO (e84d9529; C0 cutoff, C1 welding, C2 start, C3 hreg [wall i], C4 velocity [wall ii], C5 K at fibre ∞ [wall iii], C6 section). ~1.1k used.
+- 2026-10-29 下属3 thm_5_3 A1: C0, C6, C2, C1, C5 proved (incl. wall iii K at ∞, s5t53_K_infty); C3, C4 left; ~1.6k.
+- 2026-10-29 下属3 thm_5_3 C4 route approved (u = u_φ + u_c; ḟ via Schwarzian + uniqueness; ġ via first-order welding on S¹, 0.6–1.0k wall); thm_5_3 projected 3.3–4.4k; cap 5.5k.
+- 2026-10-29 下属2 wall (A) R1 ra_local_solution PROVED (~960 lines, real CK on double arrays, std 3); BeltramiRealAnalytic checkpoint fb088fef (R2–R7 stubs). Next R2.
+- 2026-10-29 下属3 thm_5_3: C3 joint C² proved (~2.35k total); reorder hreg → ḟ → ġ approved implicitly; projected 4.6–4.9k (cap 5.5k).
+- 2026-10-29 下属5 remark_4_4: W1, W1b, W2a, W2b proved (work/r44 e3f0424d, 2131 lines); clause 1 at every chart point; W3 then W0 left.
+- 2026-10-29 下属5 remark_4_4 W3 stub + T01 hypothesis approved (internal; B4 HS needed for integrability); total 4.1–5.6k.
+- 2026-10-29 下属2 wall (A): R2, R3 proved (~270 lines); R4 sub-interface (S1, S4, S5, S6) proceeding; ~1.25k of 4.75k.
+- 2026-10-29 下属3 thm_5_3 DEFECT in own stub C3 hreg (moving σ_{w_t} makes B not C² for non-WP φ). Leader: statement still TRUE (VK finite on all A∞: Σ|a_n|²n⁻⁵<∞); route (d) proposed: Levi(φ,c) = Levi(φ,0) [curve with fixed fibre s=0] + |c|² + 2Re M [first variations]; scout requested.
+- 2026-10-29 下属5 remark_4_4 IFACE re-frozen bb48917c (W3 + hκT).
+- 2026-10-29 下属3 route (d) scout: fibre-fixed curve is real (c only ℝ-analytic); exterior ℓ² C² of g_μ coefficients is an unsupported wall (complexification fails off-diagonal). thm_5_3 chain (thm_5_3, prop_5_7, thm_5_10, cor_5_11) PARKED; 下属3 writes WALL_T53.md, publishes support, then takes lemma_7_8 from pool. Grunsky-side scout (f-only formula for ∂∂̄ log|g'(∞)|) to be assigned later.
+- 2026-10-29 下属3 thm_5_3 parked: S5Thm53Curve published (96776799, 1091 lines, std 3); WALL_T53.md (W-b f-only Levi via Grunsky, W-m mixed term, W-a exterior regularity, W-c dual bound). ~2.6k spent. 下属3 → lemma_7_8.
+- 2026-10-29 下属5 remark_4_4 W0 via tcg_sigma_extension (τ ~ 0 moving ∞); import TCurvePlaneExtensions approved; ~0.5–0.7k.
+- 2026-10-29 下属3 lemma_7_8 scout: TRUE; route A pointwise Q̈ via fixed-z mixed derivative, B two-point e64 generalization (main), C I1–I4, D L² via Beurling isometry (risk: hilbertH↔PV identification), E transport; 2.2–3.0k FUNDED (stop 4.5k).
+- 2026-10-29 下属5 remark_4_4 W0 PROVED (candidate fb082d0d, 2537 lines); clause 1 everywhere; W0 stub moved (IFACE d0b4ae77, approved). Only W3 left.
+- 2026-10-29 下属3 lemma_7_8 INTERFACE GO (S7L78/INTERFACE 9d4cd51c; A, B1, B2, D1, D23, D4, E; 3.0–3.4k, stop 4.5k; needs local hilbertH↔PV identification helper).
+- 2026-10-29 下属4 lemma_3_6 DELIVERED (Ch2/S3Lemma36 cb971e78, 4376 lines, 95 thms, std 3; + S3AeContinuity bcfac2bb). Relocated (S3_Variations d269d4b4, host af8e3b8c, root cf86b3ef); compiling. 下属4 → remark_3_10 → thm_3_5 → … → thm_3_8.
+- 2026-10-29 CLOSED lemma_3_6 (std 3). Open 32.
+- 2026-10-29 下属4 remark_3_10 plan approved (S3Remark310 s310_, P1–P6, 1.6–2.0k; import S2_Thm21 OK).
+- 2026-10-29 下属1 thm_7_7 DELIVERED (Ch1/S7SecondVariation 17078205 2616 lines + S7SecondVarGeneric 817915db; F2 total 3.2k, std 3). Relocated (S7_Curvature a61d68f9, host ffb77cc6, root 295b5713); compiling. 下属1 → ℂ⁴ + cor_7_9 → F3.
+- 2026-10-29 CLOSED thm_7_7 (std 3). Open 31.
+- 2026-10-29 下属2 wall (A) DELIVERED (Ch1/BeltramiRealAnalytic 4bb400c1, 2317 lines, 65 thms, std 3). Relocated exists_realAnalytic_rep, realAnalyticBeltrami_subgroup, remark_1_2 (original texts verbatim via RELOC_ORIG; S1_1 8b309cb2, host 8de9e967, root 7a211eb6); compiling. 下属2 → scout S1_3 + S8 + componentT_spec review.
+- 2026-10-29 CLOSED exists_realAnalytic_rep, realAnalyticBeltrami_subgroup, remark_1_2 (std 3). Open 28.
+- 2026-10-29 下属1 cor_7_9 sub-interface GO (C79_SUBINTERFACE ed6c4494: H4 4-var Hartogs-lite, CORE4, POL [leader-checked], LIN, SES, SYM; 1.5–2.3k).
+- 2026-10-29 下属2 pool scout: all TRUE. lemma_1_9 W-MIX (Patterson lattice count, ≥6–10k); harmonicGamma_fd W-CUSP (4–7k); petersson_average, lemma_8_2 conditional on lemma_1_9 (0.6–0.85k); lemma_8_4 W-CONJ 0.9–1.3k; thm_8_5 W-GAMMA ≥2.5k, eq_8_1 after; componentT_spec conj 1 TRUE, W-QDISK 3–5k. Restriction of componentT_spec REJECTED (faithfulness). Order: lemma_8_4 → petersson/lemma_8_2 (lemma_1_9 as hypothesis) → W-GAMMA scout; big walls documented then funded as programs.
+- 2026-10-29 下属2: lemma_8_4 also gated on lemma_1_9 + W-CONJ (wD theory, density bound (e)); 2.0–3.5k; deferred. Doing conditional petersson_average + lemma_8_2 now, then W-GAMMA scout + wall pages.
+- 2026-10-29 下属2 S8 conditional INTERFACE GO (S8/INTERFACE e40251ac; Ch1/S8PeterssonConditional s8c_; petersson_average + lemma_8_2 under hL = lemma_1_9's conclusion).
+- 2026-10-29 下属2 S8PeterssonConditional DELIVERED (e3b819de, 373 lines, std 3): petersson_average, lemma_8_2 close by one-liners once lemma_1_9 lands. Next W-GAMMA scout + wall pages.
+- 2026-10-29 下属4 remark_3_10 DELIVERED (Ch2/S3Remark310 8b95bf65, 948 lines, std 3); relocated (S3_Variations 421ae100, host 87c34306, root bf71ea4c); compiling. 下属4 → thm_3_5.
+- 2026-10-29 下属2 WALLS.md (d8d53de4): W-GAMMA thm_8_5/eq_8_1 5–9k beyond lemma_1_9 (polarised form; G3 W-UNIF interchange 1.5–3k); W-MIX 6–10k (mixing ⇒ counting); W-CUSP 4–7k (Siegel finiteness); W-QDISK 3.5–6k (componentT_spec); W-CONJ 2.2–4.1k ((e) via grp25b pattern, not a new foundation). FUNDED: 下属2 W-CONJ → s8c lemma_8_4 now, then W-MIX. W-GAMMA/W-CUSP/W-QDISK queued for free workers; also thm_5_3 W-b (Grunsky) queued.
+- 2026-10-29 CLOSED remark_3_10 (std 3). Open 27.
+- 2026-10-29 下属4 thm_3_5 plan change: S̃₁ = S₁ on T₀(1) cheap (~400, via remark_3_10 + Grunsky unitarity) ⇒ thm_3_8 conj2 ⇔ conj1, conj3 ⇔ thm_3_5; core = ∂S₁ along chart lines, 2.5–3.5k. Interface next.
+- 2026-10-29 下属3 lemma_7_8: B1, B2, hilbertH local id, D1, D4 done (~2.0k); A, D23, E left; import S7SecondVariation approved.
+- 2026-10-29 下属4 thm_3_5 scout: walls W-NORM (Model A normalization non-holomorphic in e), W-L²DIFF (L²-differentiability of 𝒜); 3–5k. Decision: (a) S3S1Tilde S̃₁=S₁ now, then (b1) ∂S₁ funded 3–5k (report 6k) — needed for thm_3_8 conj1 anyway; pointer to S7FirstVariation Hartogs-lite for W-L²DIFF.
+- 2026-10-29 下属2 W-CONJ INTERFACE GO (S8/W_INTERFACE 611b8d16; Ch1/S8Lemma84Conditional s8w_; 15 stubs K1–K5, P1–P5, A1–A3; 3.3–5.4k, report 4.5k).
+- 2026-10-29 DEFINITION FIX IsNormalizedFix (S8, 下属2's finding): fix 0,1,∞ instead of −1,−i,1 (wD was junk id). Applied (S8 881b0bba, backup .pre_G8w), logged STATEMENT_CHANGES + ERRATA G-3 (F); recompiling S8.
+- 2026-10-29 下属3 lemma_7_8: A, E proved; only D23 (paper I2+I3 via I5/I6) left, 1.5–2.2k; total 3.5–4.2k; stop raised to 4.8k.
+- 2026-10-29 下属4 S3S1Tilde: s35_S1Tilde_eq compiles (~270); import S4GFirstVariation approved. Plan: final small host for thm_4_1/cor_4_2/wpPotential_spec importing S4GThm41 + thm_3_8 host.
+- 2026-10-29 下属4 S3S1Tilde DELIVERED (aa36233f, 334 lines, std 3): S̃₁ = S₁ on T01, bers transfer, thm_3_8 conj1 ⇔ conj2. Next ∂S₁ interface.
+- 2026-10-29 下属5 remark_4_4 DELIVERED (Ch2/S4GRemark44 d033458a, 4163 lines, 88 thms std 3); relocated with corrected −6/π text (RELOC_NEW; S4_WPPotential 4c4df473, host bbe7ef8f, root b56ab339); compiling. 下属5 → thm_5_3 W-b Grunsky scout.
+- 2026-10-29 下属1 cor_7_9 DELIVERED (Ch1/S7Cor79 5e136a1b, 1446 lines, 34 thms std 3); relocation queued after r44. 下属1 → F3 scout.
+- 2026-10-29 下属2 W-CONJ: K3 density bound PROVED (C=2; K3c.lean 459 lines); S8PeterssonConditional republished against new S8; ~0.46k used; next K1, K2, K4, K5.
+- 2026-10-29 CLOSED remark_4_4 (corrected −6/π; std 3). Open 26.
+- 2026-10-29 下属1 F3 scout: thm_7_14 GO 0.8–1.1k (strict negativity via symmetrization + G>0, leader-checked), thm_7_11 1.5–2.5k (Σ|b_n|² = 3/4π, bKernel transport; −13/(12π)), cor_7_12 trivial. Order thm_7_14 → thm_7_11 → cor_7_12; new host importing S7Cor79.
+- 2026-10-29 CLOSED cor_7_9 (S7_Curvature 29f43444, host bb2460c4, root b00a286d; std 3). Open 25.
+- 2026-10-29 下属1 thm_7_14 sub-interface GO (F3_714_SUBINTERFACE 7567f249: IM, EXP, HOLO, PSD [G positive-definite on real data, risk], STRICT; 1.0–1.3k).
+- 2026-10-29 下属5 thm_5_3 W-b scout (SCOUT_T53_Wb.md): route C (canonical pair; r22_sum closed formula 2K = ‖c_-‖²+‖c_+‖²; f-only bounds; gap C-d B₃ onto); ~2.1k + W-m. GO; 下属5 takes whole S5 chain (thm_5_3, prop_5_7, thm_5_10, cor_5_11).
+- 2026-10-29 下属1 thm_7_14 DELIVERED (Ch1/S7Thm714 d14765f8, 675 lines, 15 thms std 3; strict negativity, PSD of G via energy identity). Relocated (S7_Curvature 4af2ea89, host 3a5b3c7a, root e57c8177); compiling. ERRATA W1-07 gap closed in Lean.
+- 2026-10-29 下属5 thm_5_3 Grunsky INTERFACE GO (work/t53/IFACE_S5Thm53Grunsky 82fcb1cd; 10 stubs W1–W10; full origin identity for all Y via canonical pair, no mixed term; ~2.6k, report 3.2k; host Ch1/S5Thm53Grunsky).
+- 2026-10-29 CLOSED thm_7_14 (std 3). Open 24.
+- 2026-10-29 下属2 W-CONJ: K1–K5, P1–P5 proved (WP5.lean 1580 lines); A1–A3 left (~0.4–0.6k); projected 2.0–2.2k.
+- 2026-10-29 下属1 thm_7_11 + cor_7_12 INTERFACE GO (F3_711_SUBINTERFACE 9f337c5b; BSUM, T2, H [risk], T1; 1.6–2.2k).
+- 2026-10-29 下属3 lemma_7_8 at ~3.16k (D23 R1, R2 + kernel decomposition done); projected 3.9–4.1k (stop 4.8k); continuing.
+- 2026-10-29 下属5 thm_5_3: W4 (old form), W5 proved; W4 amended to disc-chart form (σ(∞)=fibre point made old form inapplicable; internal) approved; total ≈3.0k.
+- 2026-10-29 下属5 IFACE_S5Thm53Grunsky re-frozen 0bb3a7df (W4 disc-chart).
+- 2026-10-29 下属2 W-CONJ DONE: Ch1/S8Lemma84Conditional (691b0b45, 2326 lines, 76 thms std 3); lemma_8_4 closes once lemma_1_9 lands. 下属2 → W-MIX skeleton + Mathlib survey.
+- 2026-10-29 下属5 W4 second amendment approved (T bijection onto 𝔻∖{ω}; puncture removable).
+- 2026-10-29 下属5 IFACE re-frozen b5d688a7; all W4 hypotheses checked literally against W6 data.
+- 2026-10-29 下属3 lemma_7_8 DELIVERED (Ch1/S7Lemma78 4e6b41b3, 4368 lines, std 3); relocated (original text verbatim; S7_Curvature 0e769585, host 64053fe4, root 3b30ffd3); compiling. 下属3 → W-QDISK scout (componentT_spec).
+- 2026-10-29 下属1 thm_7_11 + cor_7_12 DELIVERED (Ch1/S7Thm711 94883c02, 789 lines, 17 thms std 3; imports S7Cor79 + CuiPieces). Relocation queued after l78. S7 complete pending installs. 下属1 → W-GAMMA scout (thm_8_5/eq_8_1 conditional on lemma_1_9).
+- 2026-10-29 CLOSED lemma_7_8 (std 3). Open 23.
+- 2026-10-29 CLOSED thm_7_11, cor_7_12 (std 3). S7 COMPLETE. Open 21.
+- 2026-10-29 下属1 W-GAMMA scout: DIRECT UNCONDITIONAL route for thm_8_5 + eq_8_1 (no lemma_1_9/lemma_8_4): F×𝔻 integrals with ∫_F ρ < ∞, D1–D7, 4.5–7.9k; FUNDED (report 6.5k, stop 10k); reuse S8Lemma84Conditional K/P blocks.
+- 2026-10-29 下属3 W-QDISK scout (QDISK/SCOUT f135a28c): GPT Component* programme already built most pieces; componentT_spec reduces to (QD) global QC extension; remaining R1–R5 2.9–5.7k, R2 (local injectivity of the spliced map at ∂Ω) = wall. Narrow R2 scout approved (+ Jordan-separation gluing alternative).
+- 2026-10-29 下属3 R2 scout GO (gluing via disjoint images from cra_relative_ambient; near-identity blow-up B0–B3; R4 fill via LZ S35 + abR_removable); componentT_spec FUNDED 3.0–5.2k (stop 7k).
+- 2026-10-29 下属1 W-GAMMA SUB-INTERFACE GO (W_GAMMA_SUBINTERFACE 52d95d9a; D4, core, fv, diag, ses, sym; s8g_thm_8_5 + s8g_eq_8_1 assembled, statements byte-identical; unconditional).
+- 2026-10-29 下属3 W-QDISK INTERFACE GO (QDISK/INTERFACE 00583548; qd_blowup, qd_contact, qd_collar, qd_extension; qd_componentT_spec verbatim assembled).
+- 2026-10-29 下属3 W-QDISK B0 qd_blowup PROVED (w1.lean d922af69, ~0.9k); contact, collar, extension left.
+- 2026-10-29 下属3 W-QDISK: B0, contact, R1 trace proved (w4 37df2dd8, ~1.3k); collar injectivity 1.5–2.2k (medium risk), easy conjuncts 0.3k, extension 0.7–1.2k; projected 3.8–5.0k.
+- 2026-10-29 下属1 W-GAMMA: D4 + CORE proved (~1.5k); DIAG certain parts ~1.3k; risk D6 Γ-second-energy identity (quotient IBP via Γ-partition of unity, 1.5–2.5k) → new stub s8g_qdot approved; total 5.0–6.5k; stop 11k.
+- 2026-10-29 下属1 W-GAMMA re-frozen 2d6369e0 (+ stub s8g_qdot, Γ-second-energy identity).
+- 2026-10-29 下属5 thm_5_3 DELIVERED (Ch1/S5Thm53Grunsky fe588923, 2914 lines, 71 thms std 3); relocated (S5_ChernForms f2a81aba, host 04f3dc98, root 60ab5e46); compiling. 下属5 → prop_5_7 → S5Kappa → thm_5_10, cor_5_11.
+- 2026-10-29 CLOSED thm_5_3 (std 3). Open 20.
+- 2026-10-29 下属5 prop_5_7 scout GO (SCOUT_P57: Θ = −2·polarize(vkNormSq) via thm_5_3; P0–P5, P4 horizontal-lift fibre velocity = risk; 1.0–1.7k; host Ch1/S5Prop57).
+- 2026-10-29 下属5 prop_5_7 INTERFACE GO (work/p57/IFACE_S5Prop57 2200a872; 9 stubs P0–P5b).
+- 2026-10-29 下属5 prop_5_7: P0, P2, P5a proved; P4 (horizontal-lift fibre velocity at nonzero base) bigger: prop_5_7 re-funded ~3.0k (report 3.2k, stop 4.5k); order P1, P5b, P3, P4; reuse S4GFirstVariation off-centre chain rule.
+- 2026-10-29 下属3 W-QDISK: qd_collar fully proved (~2.6k); only qd_extension (R4) left.
+- 2026-10-29 componentT_spec relocated into Ch1/QDiskComponent (下属3, e4c0876b → 08f29652; S2 ec9b6a56, root 54e33ed6; dead c32_cor_3_2 removed from Cor32Completed); chain ct compiling. 下属3 → W-CUSP harmonicGamma_finiteDimensional (scout + interface; report 4k, stop 7.5k).
+- 2026-10-29 CLOSED componentT_spec (chain ct exit 0, std 3). Open 19.
+- 2026-10-29 下属3 W-CUSP scout: no cheap route (N(z)~y ⇒ cusp decay needed). Route B GO: Cayley transfer → Siegel finite area ⇒ FG (wall, 1.5–3k) → Selberg torsion-free finite index → LZ ft1_decomposition (no funnels) → sup ≤ C·L² → dim bound; 4–6.5k. Imports FoundationFinal, SelbergLemma, S8_FiniteDimensional approved. Interface next.
+- 2026-10-29 W-CUSP INTERFACE 3593cb2e audited: B1a hrel FALSE at τ=i (cay i = 2i/0 = 0 junk; mob g 0 = b/ā ≠ a/b̄); fix = exclude τ = I and M•τ = I in B1a/B1b/B6. Rest (B2 Siegel, B3 explicit F₀, B4, B5 uniform K, B6, B7) OK. GO after fix.
+- 2026-10-29 W-CUSP INTERFACE FROZEN (下属3/CUSP/INTERFACE 92b8df1f; Cayley-pole exclusion in all 6 relation clauses). Host Ch1/S13Cusp s13c_.
+- 2026-10-29 下属5 prop_5_7 DELIVERED (S5Prop57 e61201c9, 1630 lines, 37 s5p57_, std 3; P4 TRUE). Relocated (S5_ChernForms 3152074a, host 6f0c3d2f, root 8ca28fcc); chain p57 compiling. 下属5 → scout thm_5_10/cor_5_11.
+- 2026-10-29 CLOSED prop_5_7 (chain p57 exit 0, std 3). Open 18.
+- 2026-10-29 下属5 thm_5_10/cor_5_11 scout TRUE (n=0 vacuous junk, harmless). S5KappaTheta IFACE 149bdbfd FROZEN (K1–K3, 0.25k, stop 0.6k); 下属5 also finishes S5Kappa (d2b903d3 + import + 3 one-liners) and publishes both.
+- 2026-10-29 下属5 S5KappaTheta (f999e656) + S5Kappa (93098f32 = d2b903d3 + import + 3 one-liners) ACCEPTED; thm_5_10 + cor_5_11 relocated (S5_ChernForms 607c0c75 sorry-free, S5Kappa 44ce19dd, root 08ec8822); chain k compiling. remark_5_8 REASSIGNED 下属6 → 下属5 (report 6k, stop 9k; existing W-QD support check first). 下属6 stays on remark_4_3.
+- 2026-10-29 CLOSED thm_5_10, cor_5_11 (chain k exit 0, std 3). Ch1 S5 sorry-free. Open 16.
+- 2026-10-29 下属5 remark_5_8 INTERFACE FROZEN (work/r58/IFACE_S5Remark58 d35e2d92; host Ch2/S5Remark58 s5r58_; F1–F3 (⇒), Q1, W-QD qc_ext 2.5–5k, Q4). No existing W-QD support (Pommerenke Ch9 all sorry). Audit notes: Q4 normalization, W-QD needs ‖C‖<1, Q1 nonvanishing denominator.
+- 2026-10-29 下属5 remark_5_8: F1–F3, Q1 proved (627 lines; Q1 needs Liouville shift by omitted e: f = 1/(ψ−e)). Q4 TRUE as stated despite fsans normalization (λ_c∘f; 1/f differences invariant); route (a)–(e) GO 0.4–0.6k. Then W-QD sub-interface.
+- 2026-10-29 下属6 remark_4_3: R2 r43_gWP_formula proved (~870, coefficient form of g_WP); frozen stub R4 r43_dom FALSE (W_q(𝔻*) dips into 𝔻 off diagonal ⇒ ℓ² series diverges) — interface eda780f0 RETIRED (stub defect, statement unchanged). Re-scout: real-analytic potential (Ch2 thm_4_1/∂∂̄S₁ chart-invariant) or period-map pull-back; conditional interface; 1.5–2.5k (report 2.5k, stop 3.5k).
+- 2026-10-29 下属3 W-CUSP: B1a,B1b,B3–B7 PROVED (CUSP/S13Cusp 432dd2f7, 2473 lines, FROZEN PASS, std 3); only B2 Siegel left (no support anywhere; 3–5k). GO B2 (Dirichlet route preferred), sub-interface first; total stop 8.5k, report 6k. Host stays in workspace until B2 done.
+- 2026-10-29 下属5 remark_5_8: Q4 PROVED (1031 lines; only W-QD left). W-QD sub-interface FROZEN (SUBIFACE_WQD 5687ff4d; WQ0 ‖C‖<1 via HS compactness (siegelDisk clause only pointwise), WQ1 Golusin, WQ2 boundary extension, WQ3 bounded turning, WQ4 Ahlfors extension; 3.0–4.3k).
+- 2026-10-29 下属6 remark_4_3 re-scout: route (a) via S₂ potential (installed s4g_S2_ddbar, unconditional). INTERFACE Ch2/R43Potential ab341bf3 FROZEN (P1 S₂∘chart ℝ-analytic, P2 bridge, P3 generic ∂∂̄); 1.5–2.6k (report 2.5k, stop 3.5k). R43Analytic (retired, unimported) to be deleted at final install.
+- 2026-10-29 Retired Ch1/R43Analytic.lean moved to collaboration/backups/R43Analytic.lean.retired_G (unimported; 下属6 agreed).
+- 2026-10-29 下属3 W-CUSP B2 sub-interface FROZEN (B2_INTERFACE ebed3b32; Dirichlet: B2.1 base point, B2.2 neighbours generate, B2.3 area(D) ≤ area(F), B2.4 Siegel core N finite 3–4k → needs its own sub-interface (i)–(v) before proving). W-CUSP total est 6.5–7.5k (stop 8.5k).
+- 2026-10-29 下属5 W-QD: WQ0 PROVED (compact HS + Fredholm alternative). WQ1 stub DEFECT (sqSum junk 0 off ℓ²: C ≡ 1, κ = 0) → approved fix: add hB : IsBoundedMat C to s5r58_wqd_golusin (sub-stub change, not a paper statement).
+- 2026-10-29 下属6 R43Potential: P3 PROVED (~95). P1 split P1a log-series analytic 0.3–0.45k, P1b B₁ HS-holomorphic on V₀ 0.8–1.3k (risk), P1c 0.1k; total revised 2.0–3.2k (stop 3.5k).
+- 2026-10-29 下属5 remark_5_8: frozen W-QD and WQ2 FALSE (f = z/(1−z): C = 0 but f(𝔻) unbounded — disc form lets f(∂𝔻) hit ∞). v2 APPROVED+FROZEN (IFACE v2 eefa42ee, block e0e2ea68): W-QD′ extends f/(1+cf), new RN renorm stub, WQ2′–WQ4′ on Ψ = 1/f (Σ form). remark_5_8 statement unchanged.
+
+- 2026-10-29 RAM stall: lean3/lean5/lean6 compiles sat about 1 h in CompileWithSlot's -WaitForResources loop (free RAM 4.2 GB < 6 GiB gate); Lean never started. All three stopped their own tasks; rule from now on: no -WaitForResources, report exit 75 to the leader; compiles serialized by leader GO (queue 下属3 → 下属5 → 下属6).
+- 2026-10-29 W-CUSP: B2.1 sg_base, B2.2 sg_gen, B2.3 sg_area PROVED (t7 exit 0, +266 lines, W-CUSP about 2.6k). Remaining: B2.4 sg_core; sub-interface pending audit.
+- 2026-10-29 remark_5_8 (下属5): WQ1 s5r58_wqd_golusin and RN s5r58_renorm PROVED (g2 exit 0, about 1.4k lines); remaining WQ2′/WQ3′/WQ4′.
+- 2026-10-29 remark_4_3 (下属6): P1a r43p_logSeries_analytic + P1b pieces r43p_groupO_rep, r43p_K1_step compile (exit 0); next local HS bound, entrywise holomorphy, ℓ² upgrade.
+- 2026-10-29 W-CUSP B2.4: sub-interface B24_INTERFACE 6d6705e6 AUDITED + FROZEN (7 stubs s13c_sc_convex/face/cycle/gb/ideal/vfin; D,V,ang passed with defining equations, no new defs; Katok Thm 4.1.1). Est 4.2k, projected W-CUSP ~6.8k; (iv-a) cap 2.7k; total stop 8.5k.
+- 2026-10-29 W-CUSP: B24_INTERFACE re-frozen at 020073af (binder annotation `s : ℝ` in ang's equation, elaboration only); type-check exit 0, s13c_sg_core assembly sorry-free.
+- 2026-10-29 remark_4_3 (下属6): P1 COMPLETE (G/P1.lean 5a5f3a72, body baacdb4e, ~0.65k; r43p_logSeries_analytic/K1_step/HS_local/B1_holo/S2_analytic_proof std-3). Next P2 r43p_bridge.
+- 2026-10-29 W-CUSP: B2.4.i s13c_sc_convex + B2.4.ii s13c_sc_face PROVED (t8 exit 0, 276 lines vs est 950; W-CUSP ~2.9k). Open: (iii), (iv-a), (iv-b), (v).
+- 2026-10-29 W-CUSP: B2.4.v s13c_sc_vfin PROVED (118 lines; W-CUSP ~3.0k). Next (iii) s13c_sc_cycle (est 800, stop 1.2k).
+- 2026-10-29 W-CUSP: B2.4.iii s13c_sc_cycle PROVED (~650 lines; W-CUSP ~3.7k). Open: (iv-a) gb, (iv-b) ideal.
+- 2026-10-29 remark_4_3 (下属6): P2 r43p_bridge done; full final file R43Potential_final 4355caa1 (1174 lines, 0 sorry) under final compile.
+- 2026-10-29 Ch1 remark_4_3 CLOSED (下属6): R43Potential_final 4355caa1 installed as Ch2/R43Potential, original relocated from S4_Metrics (8ec53efb) into Ch2/R43Potential (38eff297), root 37ae331b; chain r43c exit 0; remark_4_3 std-3. Open 15. reloc_g.py moved to collaboration/leader_g/reloc_g.py (temp copy lost).
+- 2026-10-29 Ch2 S3 split (下属4 ↔ 下属6) AGREED: 下属4 freezes s35_S1_offcentre_variation (DifferentiableAt ℝ + dz formula along lines at off-centre points, same hyps as s4g_S2_offcentre_variation) + thm_3_5; 下属6 takes W-CONST engine (REG-free: line derivatives on convex chart set B, glr_chart_image_open, T01 preconnected), F(origin)=0, thm_3_8 conj1/2 assembly, cor_3_7, cor_3_9. Budget 下属6 report 1.2k / stop 2k.
+- 2026-10-29 ∂S₁ (下属4): G35O/INTERFACE 80a3612a FROZEN — stub s35_S1_offcentre_variation (hyps = s4g_S2_offcentre_variation), s35_thm_3_5 assembled from it. Budget report 4k / stop 7k. W-CONST iface (下属6) f6cb94de math approved; namespace fix (Ch2) required before freeze.
+- 2026-10-29 W-CONST (下属6): interface registered as Ch2/S3WConst.lean 2cfb10e3 (namespace Ch2 fixed), compiled exit 0, FROZEN; 10 stubs.
+- 2026-10-29 ∂S₁ scout (下属4): Grunsky route NO-GO (index-0 column + HS→A21 log loss); TT:4780–4960 route est 6–9.5k with walls W-INV (A21 inverse bound) and W-GSIDE (g-side t-regularity). DECISION: FUNDED option (i), ~10k, 3 lanes: (A)+(C)+W-INV 下属4 cap 3k; (D) formula → 下属6 after W-CONST cap 4k; (B)+W-GSIDE next free worker cap 3k. Sub-interface first for audit.
+- 2026-10-29 W-CONST ACCEPTED (下属6): Ch2/S3WConst.lean 6a4bf6a9 published, 0 sorry, 11 decls std-3; thm_3_8/cor_3_7/cor_3_9 relocation deferred until s35_S1_offcentre_variation + thm_3_5 land. 下属6 → ∂S₁ lane (D).
+- 2026-10-29 ∂S₁ lane (D) scout (下属6): D1 f-side, D2 g-side, D3 log|g'(∞)|, D4 Fubini (wall W-FUB, singular kernel), D5 algebra via s36l; est 3.5–5.6k, cap raised to 5.5k, W-FUB GO/NO-GO checkpoint at 3k; W-NORM g-side cancellation to be checked first.
+- 2026-10-29 W-CUSP: B2.4.iv-b s13c_sc_ideal PROVED (847 lines incl. polar machinery P1/P3/P4; W-CUSP ~4.55k). Only (iv-a) s13c_sc_gb left: GO at est 1.6k, stop 2.4k; projected W-CUSP ~6.2k.
+- 2026-10-29 ∂S₁ SUBIFACE 054d987a FROZEN (下属4): stubs (G) s35_l2sq_variation, W-INV s35_winv, (R) s35_riccati_variation, (A) s35_f_variation, (C) s35_beta_variation, W-GSIDE s35_wgside, (B) s35_g_variation, (D) s35_formula; s35_S1_offcentre_variation assembled. Lanes: 下属4 G/W-INV/R/A/C cap 3k; 下属6 D cap 5.5k; 下属3 B+W-GSIDE after W-CUSP cap 3k.
+- 2026-10-29 ∂S₁: W-NORM finding (下属6): S₁-form does not cancel (moving-pole Möbius M_t + Aut(𝔻*) A_t terms); S̃₁-form cancels identically (translation + lemma_3_4, TT fn.1). DECISION option (b): SUBIFACE 054d987a un-frozen, restate A′/B′/C′/G/D′ for S̃₁, assemble via S₁ = S̃₁ at line points; INTERFACE 80a3612a unchanged.
+- 2026-10-29 ∂S₁: decision REVERSED to option (a) after 下属4: (b) needs new L² wall for f'/f − 1/z; SUBIFACE 054d987a RE-FROZEN unchanged; D absorbs c_t/A_t correction terms as separate stubs (analytic t-differentiability of pole q_t, A_t + algebraic cancellation). D cap 6.5k.
+- 2026-10-29 ∂S₁ lane D: paper check shows c_t/A_t corrections do NOT cancel (Ŝ not fiber-invariant; residual 8π Re(c(ε̄−ε)) on test pair; δS̃ = 0 consistent with lemma_3_4). Frozen statements unaffected (liouvilleS1 defined via canonical pair). D keeps (a) with D-NORM + D-IDENT (remark_3_10 algebra) + W-FUB stubs; D stop 7.5k, W-FUB checkpoint 3k. ∂S₁ total funding now ~13.5k.
+- 2026-10-29 ∂S₁ g-side scout (下属6): off-centre δ𝒮(g_t) not installed (= W-GSIDE core; needs L∞-Fréchet of welded Schwarzian, W-GSIDE(i)); ODE constant fixed by decay at ∞. DECISION: 下属6 owns (B)+W-GSIDE+D, cap 11k, checkpoints W-GSIDE(i) at 1.5k, W-FUB at 3k into D; W-GSIDE restated with explicit pointwise values (re-audit). 下属4 keeps G/W-INV/R/A/C cap 3k. 下属3 freed from (B) — reassign after W-CUSP.
+- 2026-10-29 ∂S₁ W-INV PROVED (下属4): G35O/W/WINV.lean e5b6a630, s35_winv std-3, direct quantitative route (no open mapping), 254 lines. Next (G), (R).
+- 2026-10-29 ∂S₁ W-GSIDE restatement (下属6) WGSIDE_DIFF fc0b1dcd APPROVED (adds welded Q_t holomorphic in t + first-order unwelding values); to be applied to SUBIFACE by 下属4, frozen at new md5.
+- 2026-10-29 ∂S₁ SUBIFACE re-FROZEN at f21f2877 (W-GSIDE restated + two ContDiffOn ℝ 3 conjuncts for ψ₁/ψ₂; backup SUBIFACE_054d987a.lean).
+- 2026-10-29 ∂S₁ (G) s35_l2sq_variation PROVED (下属4, W/G.lean 5c9200ac, 157 lines, std-3). Lane 下属4: 411/3k. Next (R).
+- 2026-10-29 ∂S₁ W-GSIDE early checkpoint (下属6): CONDITIONAL NO-GO with installed library. Exact reduction γ_t = wA(a+tm)∘wA(a)⁻¹ (good). Walls: W-REG3 (3-coefficient affine W-REG generalization, est 2.5–3.5k) and clause 7 (A₂(𝔻*) remainder of 𝒮(g_t), no tool, est ≥3k). DECISION: W-REG3 = own lane → 下属3 after W-CUSP (cap 3.5k, interface by 下属6 for audit); 下属6 does clause-5 algebra + D sub-interface conditional; time-boxed scout on clause 7 alternatives (domination / exact coefficient formula / consumers).
+- 2026-10-29 W-REG3 interface (下属6) WREG3_IFACE 47737951 AUDITED + FROZEN (wr3_coeffs, z_regular, holo, cont, inv_cont, jacobian_pos); lane → 下属3 after W-CUSP. Clause 7 consumed only for d/dt ∫_{𝔻*}|𝒜g_t|²; proposed weakening (G′): Lipschitz O(t) bound + pointwise derivative suffices (weak-convergence argument); 下属6 to re-estimate clause 7′.
+- 2026-10-29 ∂S₁ clause 7′ (Lipschitz) est 3.5–5k (下属6); route L2(a): 𝒮(g)=6K₄ diag (HS→A₂ bound) + HS-Lipschitz of g-g Grunsky kernel K₄ (core W-BEURL, uniform weighted Beurling p.v. bound). DECISION: funded; owner 下属4 after (R)/(A)/(C), cap 5k, plus generic (G′). SUBIFACE v3 (clause 7→7′, (B) remainder→Lipschitz, (G′), 7′ sub-stubs) to be drafted by 下属6 with 下属4. ∂S₁ total estimate now ~18–21k.
+- 2026-10-29 ∂S₁ SUBIFACE v3 fdb03441 APPROVED (clause 7 → separate 7′ s35_g_schwarzian_lip; (B) Lipschitz; (G′) s35_l2sq_variation_lip; (R′) s35_riccati_lip; W-DIAG s35_diag_bound; W-BEURL s35_K4_deriv_bound; s35_K4_lip). Caveat: W-BEURL truth = main risk (inversion in T₀(1) only continuous); 下属4 to give truth argument or switch core to uniform-in-base A₂ bound on ∂𝒮(g_s).
+- 2026-10-29 harmonicGamma_finiteDimensional CLOSED (下属3, W-CUSP): S13Cusp 49bebf76 installed as Ch1/S13Cusp.lean, original relocated from S1_3_Fuchsian (3d84674f) into S13Cusp (0aacc66c), root 9f9c2496; chain cusp exit 0; std-3. Open 14. 下属3 → W-REG3 (est 0.8k, cap 3.5k).
+- 2026-10-29 ∂S₁ (A)/(C) scout (下属4): (A) hS GO (s4g_off_chart_data + s3dl_diagonal_bound; s3dl_exterior_bound gives W-DIAG), hc probably GO; hP and (C) blocked by W-NORM (t-differentiability of Model A pole / normalizing Möbius). DECISION: W-NORM funded, owner 下属4 (+2.5k, GO/NO-GO at 1k); new stub s35_wnorm (𝒜(f_t)(0) and g_t'(∞) ℝ-differentiable), (C) := s35_wnorm.2.
+- 2026-10-29 ∂S₁ SUBIFACE FROZEN at 1b7022de (s35_wnorm inserted; (C) := s35_wnorm.2; backup SUBIFACE_fdb03441.lean).
+- 2026-10-29 W-REG3 DONE (下属3): WReg3 74542c16 (981 lines, 0 sorry, std-3) published as Ch2/WReg3.lean (not root). W-NORM reassigned 下属4 → 下属3 (cap 2.5k, GO/NO-GO 1k).
+- 2026-10-29 ∂S₁ (A) s35_f_variation PROVED (下属4, W/A3.lean c740a3c3, against s35_wnorm stub); (C) one-liner. W-DIAG constant change 1/(4π)→1/(2π) pre-approved (s3dl_exterior_bound). 下属4 → 7′ core scout.
+- 2026-10-29 ∂S₁ 7′ core: K₄/W-BEURL route dropped; replaced by W-GUNIF s35_g_parts_uniform (uniform-in-base A₂ energy bound + continuity of t-derivative of 𝒮(g_t)); owner 下属6 (cap +2k → 13k); 下属4 7′ program (G′, R′, 7′-from-core) cap 1.5k. Stub removals: s35_K4_deriv_bound, s35_K4_lip, s35_diag_bound.
+- 2026-10-29 W-NORM triage (下属3): GO, est 1.9–2.6k; pieces W_t holomorphic in t, moving Model A pole via IFT on W3 (sub-wall P₀ = ∞), g_t'(∞) via Cauchy integral; cap 3k, checkpoint 1k.
+- 2026-10-29 下属6 lane plan approved: A (clauses 1–5, helpers G1 Cauchy commutation, G2/G3 γ_t helpers → shared module Ch2/S35Gamma for 下属3 too), B (clause 6 + W-GUNIF via p.v. kernel identity, K₄ splitting, Beurling L² isometry, column bound), (B), D; est 8.5–11k within 13k cap; checkpoints 1.5k / end of A / W-FUB.
+- 2026-10-29 S35Gamma interface (下属6) 52441d00 AUDITED + FROZEN (G1a s35g_param_deriv_regular, G1b s35g_param_deriv_dz, G2 s35g_family, G3 s35g_gamma_eq); shared by 下属6 (W-GSIDE) and 下属3 (W-NORM); to be published as Ch2/S35Gamma.
+- 2026-10-29 ∂S₁ SUBIFACE FROZEN at 4d61c3f5 (W-GUNIF s35_g_parts_uniform added; s35_diag_bound/K4_deriv_bound/K4_lip removed; 7′ statement unchanged). (R′) s35_riccati_lip PROVED (下属4, W/A4.lean). W-NORM route refined by 下属3 (Cauchy integrals of Ψ_ν over fixed circle; pole never differentiated; P₀=∞ sub-wall gone).
+- 2026-10-29 W-GUNIF core risks retired (下属6): Beurling L² isometry = LiZhongQC thm11_3_isometry (hilbertH); column bound = AppB kerK1_row_sq_le transported to 𝔻* (gk_K4_of_K1). Axiom check requested.
+- 2026-10-29 ∂S₁ W-NORM PROVED (下属3, WNORM/S35WNorm.lean 63690718, 162 lines, std-3; via S5 real-analytic chart infra s5cf_/s5t53_). (G′) s35_l2sq_variation_lip PROVED (下属4, W/G2.lean 73505756). 下属3 → scout S5 infra for W-GSIDE/W-GUNIF.
+- 2026-10-29 S5 scout (下属3): S5 gives joint ℂ-analyticity of 𝒮(g_ν)(z) in ((ν,ν̄),z) for all z ∈ 𝔻* (pointwise only; no A₂ norm control). Split: 下属3 delivers W-GSIDE clause 1, W-GUNIF clauses 1–2, explicit parts formula, pointwise t-diff of wA(λ_t)(z) (cap 0.7k); 下属6 keeps (ii)/(iii), A₂ clauses, W-GUNIF energy bound, (B), D.
+- 2026-10-29 GAN interface (下属3) 990d9587 AUDITED + FROZEN (s35ga_clause1, s35ga_uniform12, s35ga_parts, s35ga_gamma_pointwise). 下属6: (iii) unwelding values still needed for D and core (c gives regularity, not values).
+- 2026-10-29 ∂S₁ 7′ s35_g_schwarzian_lip PROVED from W-GUNIF stub (下属4, W/S7p 43bf8c69). 下属4 lane COMPLETE (W-INV, G, R, A, R′, G′, 7′). 下属4 assembling cumulative host (inline W-NORM); proposed D1+D3 to 下属4.
+- 2026-10-29 Status: 下属1 W-GAMMA D4+CORE proved (~1.5k), iface 2d6369e0 RE-FROZEN (s8g_qdot; integrability obligation flagged); next DIAG/FV/SES/SYM then D6. 下属2 W-MIX not started (W-CONJ done); GO skeleton with orbit-counting reduction suggestion (unfold + Scheffé; wall = Delsarte–Huber–Patterson counting via mixing). 下属5 remark_5_8: WQ2′ route planned (Pommerenke 9.12), est 1.2–2k, GO.
+- 2026-10-29 ∂S₁ D route (β) APPROVED (下属6): welded C_t = 𝒜(g_t)∘γ_t·∂γ_t via wpcv_lcov change of variables (N(t) = ∫|C_t|²(1−|λ_t|²)); saves 0.5–1.5k vs (α); stub diff (s35_formula for C_t, assembly, (B) C_t clauses, D1/D3 with 下属4, boundary estimate stub) to be audited in one round.
+- 2026-10-29 W-MIX skeleton (下属2) ACCEPTED: lemma_1_9 via thickening + averaging + unfolding to CORE ⟨M_R f, g⟩_F → (∫f)(∫g)/A(F). Outer layer FUNDED (host Ch1/S19Mix, prefix s19m_, cap 2.5k, core as hypothesis, interface first). CORE via Howe–Moore/Mautner on Γ\G funded in principle as stage 2 (~5–7.5k) with sub-interface (W-LIOUV/W-CONT/W-WEAK/W-MAUT/W-ERG) for multi-worker split.
+- 2026-10-29 GAN PROVED (下属3, GAN/w1.lean 72bf3456, ~280 lines): s35ga_clause1, s35ga_uniform12, s35ga_parts, s35ga_gamma_pointwise. 下属3 → piece of 下属6's lane (to be designated in (β) diff).
+- 2026-10-29 (β) boundary estimate: leader's phrasing |γ_t(z)−z| ≲ |t|(|z|−1) FALSE (下属3: γ_t moves 𝕊¹ tangentially). True forms: normal component ||γ_t z|−|z|| ≲ |t|(|z|−1), |γ_t−id| ≤ C|t|, derivative bounds. 下属6 to restate in (β) diff.
+- 2026-10-29 remark_5_8 WQ2′ (下属5): wall at circle×circle injectivity (Golusin estimates close only for κ<1/3; Pommerenke 9.12 needs Lemma 9.10 + quasidisc criteria). DECISION: (A) split stub WQ2i (iface diff for audit) + prove continuous part & disc/circle disjointness (~500); then scout (C) Pommerenke route / existing quasidisc criteria / three-point ⇒ injectivity.
+- 2026-10-29 ∂S₁ DEFECT (found by 下属6): unwelded g-side stubs generically FALSE (Lie derivative L_ψ𝒮 with tangential ψ≠0 on 𝕊¹ loses a derivative = inversion obstruction): W-GSIDE cl.6, W-GUNIF cl.3, 7′, (B) unwelded MemLp/Lipschitz, D hB1/hB2. Leader's earlier approvals were errors. v4: welded C_t = 𝒜(V_t∘g) − 𝒜(γ_t), N(t)=∫|C_t|²(1−|λ_t|²) (wpcv_lcov), core W-CLIP via uniform L² bound on 𝒜(V_t) (V_t holomorphic in t) + Cauchy + ‖𝒜(γ_t)‖≤C|t|. Cumulative host S35Host d088f78f (下属4) assembled (revcheck PASS); 4 stubs open; re-assemble after v4.
+- 2026-10-29 Also withdrawn: normal-component bound ||γ_t z|−|z|| ≲ |t|(|z|−1) likely FALSE for WP-class m (v′ ∈ H^{1/2} ∉ L^∞; 下属3). v4 must avoid pointwise boundary estimates.
+- 2026-10-29 remark_5_8: WQ2i s5r58_wqd_bdry_inj stub added (h_W-QD_1sub a1584bf7) FROZEN; consumed only in WQ2′ proof.
+- 2026-10-29 W-MIX outer interface (下属2) c7865846 AUDITED + FROZEN: s19m_area_ball, area_infty, nest, thicken, unfold, lemma_1_9_of_core (hcore: ⟨M_s f, g⟩_F → (∫f)(∫g)/A(F), f bounded automorphic, gρ ∈ L¹(F)). Host Ch1/S19Mix, cap 2.5k.
+- 2026-10-29 v4 caution (下属3): γ_t has finite pole p_t ∈ 𝔻* (t≠0) ⇒ 𝒜(γ_t), 𝒜(V_t) not in L²; v4 must use Möbius-renormalized pieces (poles cancel; S5 coordinates) and state W-CLIP for pole-free quantities. 下属4: s35s_core reusable; D1 reduces to scalar ∂_t𝒜(f_t)(0) (W-NORM value).
+- 2026-10-29 v4 redesign (下属6): g-side moved to TT's 𝔻-model via J(z)=1/z: F_t(u)=1/g_t(1/u) (= 下属3's s5cf_gchart, jointly analytic), γ̃_t = J∘γ_t∘J pole-free; N(t) = ∫_𝔻|𝒜(F_t) − 2(F_t′/F_t − 1/u)|²; W-CLIP sub-stubs in 𝔻-model (uniform 𝒜(Ṽ_t) bound; ‖𝒜(γ̃_t)‖≤C|t| for 下属3). Drafting (≈half day).
+- 2026-10-29 D1 caution (下属3): ∂_t̄𝒜(f_t) ≠ 0 in general (normalizing Möbius via Model A pole depends on ν̄); D1 must carry normalization terms e₁,e₂; derivative VALUES of W′(0), W″(0), P, g′(∞) not installed (est 1.5–3k).
+- 2026-10-29 W-MIX (下属2): installed Howe–Moore for SL(2,ℝ) found (Ch1/Mautner, MautnerWeakLimit, DiagonalMixing, InvariantProjectionMixing) ⇒ W-WEAK/W-MAUT done; stage 2 revised ~3–4.5k (W-LIOUV, W-CONT, W-ERG, K-average link). Also PattersonUnfold.pat_average_limit_of_counting_asymptotic (hcount route) exists; keep hcore. Header import PattersonOrbit approved.
+- 2026-10-29 ∂S₁ REASSESSMENT (下属6): welded core W-CLIP has no clean route (poles intrinsic; Möbius renormalization breaks holomorphy; Bergman part reduces to non-Lipschitz unwelded differences); TT differentiate formally. Two parallel scouts: 下属6 (a) literature on W-CLIP (ii) + (b) combined S₁+12πS₂ expression via Grunsky identities; 下属3 density/continuity route (S₁ continuous on T01, identity on dense analytic-curve class, extend). thm_3_8 cluster (7 sorries) at risk.
+- 2026-10-29 下属4 withdrew D1₀/D3 stub proposals (pole terms missing). Temporary reassignment: 下属4 → help 下属5 on remark_5_8 WQ2i/WQ3′ (Pommerenke 9.10/9.12 Grunsky route scout). 下属2: W-MIX reused results std-3; s19m_nest proved.
+- 2026-10-29 Reassessment scout 下属6: (a) literature NO-GO (Shen–Wu: Riemann-map structure only topologically equivalent to Bers; TT formal); (b) combined Grunsky expression NO-GO. Supports DENSITY route: D = chain of chart segments with polynomial φ (smooth-up-to-𝕊¹ weldings), unwelded calculus true on D, F constant on D, F continuous on T₀(1) (needs g-side continuity = inversion continuity), D dense ⇒ thm_3_8; thm_3_5 then follows from thm_3_8 + S3S1Tilde + thm_3_1 (no off-centre variation). Est 4–6k. Awaiting 下属3's density scout.
+- 2026-10-29 Reassessment scout 下属3: density route NO-GO as cheaper (D_cs needs non-harmonic S₁/S₂ variations; D_hp needs Schauder boundary regularity 3–6k+); installed: GroupTopGroup inversion continuity, cor_A_4/lemma_A_5 A₂¹ convergences; not installed: S₁ continuity, density, non-harmonic variations. DECISION: fund S₁ continuity on T01 (下属3, cap 2k, hedge); joint 下属3+下属6 reconciliation on explicit origin-chart computation + globalization via right translations.
+- 2026-10-29 USER DECISION: fund thm_3_8 cluster fully. Route: density D_hp (Schauder-up-to-𝕊¹ boundary regularity + S₁ continuity + density + chart globalization + D formula on smooth data), est 6–10k, cap 10k. Lead/design 下属6 (master iface, Ch2/S3Density, s3d_); 下属3 S₁ continuity then Schauder help; 下属4 WQ2i (remark_5_8, cap 1.5k) then D formula. thm_3_5 to follow from thm_3_8 + S3S1Tilde + thm_3_1.
+- 2026-10-29 S₁-continuity interface (下属3, S1C, prefix s1c_) APPROVED: s1c_continuousOn from stubs nhds_countable, beta_continuous, memLp, f_tendsto, g_tendsto, sq_tendsto; est 1.4–2.6k, cap 2k. 下属5 WQ2′ drafted (1806 lines), compiling.
+- 2026-10-29 remark_5_8 WQ2′ s5r58_wqd_boundary PROVED (下属5, g5 exit 0; S5Remark58 4fd91054, 1808 lines); remaining WQ2i (下属4), WQ3′, WQ4′. Splice plan agreed (s5r58q_, h_W-QD_0d).
+- 2026-10-29 Density master interface (下属6) S3Density_IFACE fa90ef38 AUDITED + FROZEN (s3d_l2sq_dom, s3d_g_dom [Schauder core, GO/NO-GO], s3d_formula, s3d_S1_off, s3d_const_D, s3d_dense, s3d_F_cont, s3d_origin; s3d_h38 proved; s3d_thm_3_8 via s3wc_thm_3_8 + s4g_S1_offcentre_variation). Owners: (1) 下属3 probe first then core; (4) 下属6; (5) 下属3; formula D1/D1₀/D3 下属4, D2/D-IDENT/W-FUB 下属6; assembly 下属6. Cap 12k. Retired: s35_wgside, W-GUNIF, 7′, (B), s35_formula, s35_S1_offcentre_variation, (G′), (R′).
+- 2026-10-29 s3d_g_dom probe (下属3): Neumann-series NO-GO; routes ≥3k: Hölder–Beurling/Schauder, L^p-Sobolev bootstrap, or (iii) analytic welding (polynomial φ ⇒ meromorphic Ahlfors–Weill f, analytic welding, g extends across 𝕊¹, joint analyticity). DECISION: GO via (iii), owner 下属3 (cap 5k, sub-interface first). S1C (5) → 下属6; 下属6 starts (3)/(4)/G-DOM. s3d_g_dom docstring fix (dist^{α−1}).
+- 2026-10-29 S3Density_IFACE docstring-only edit → 29319fbc (s3d_g_dom: O(dist^{α−1}) note); FROZEN at 29319fbc.
+- 2026-10-29 S1C interface FROZEN c7ec5e0a (handed to 下属6). GDOM (iii) sub-interface (下属3) 5550d892 APPROVED: s3g_aw_extend, s3g_weld_of_ext, s3g_ext_of_weld, s3g_weld_mul, s3g_dom_of_ext (+ assembly of s3d_g_dom); est 2.5–4.2k, cap 5k.
+- 2026-10-29 remark_5_8 WQ2i s5r58_wqd_bdry_inj PROVED (下属4, R58Q h_W-QD_0d ee0fa18d + body ef7bb420, ~500 lines, std-3; Pommerenke radial box integration). 下属4 → WQ3′ quantitative piece (s5r58q_sep), then density-route D formula.
+- 2026-10-29 remark_5_8 WQ3′ pieces (下属4): Pommerenke1992.area_theorem is sorried (unusable) → diameter fallback s5r58q_diam; pieces sep/diam/renorm/cross + Möbius glue, cap 1.3k.
+- 2026-10-29 remark_5_8 WQ4′ s5r58_wqd_extend PROVED (下属5; WQ2i spliced; S5Remark58 f9b6043c, 2779 lines). ONLY WQ3′ s5r58_wqd_turning left (下属5 S18 translation 500–700 + 下属4 quantitative pieces ≤1.3k).
+- 2026-10-29 Density route: (3) s3d_const_D and (4) s3d_dense PROVED (下属6, S3DConstDense_work 5b3015b3) modulo s3d_S1_off and new leaf s3d_poly_dense (FROZEN: polynomials dense in A₂(𝔻)). S35Gamma all 4 stubs proved (acc1c4c6→acd1c4c6), axioms pending.
+- 2026-10-29 S35Gamma PUBLISHED as Ch2/S35Gamma.lean (acd1c4c6, std-3, not in root).
+- 2026-10-29 GDOM interface FROZEN 6f2b66a3 (InjOn G amendment). (c) s3g_weld_mul PROVED (下属3, ~0.1k). Next (d), (a), (b), (b′).
+- 2026-10-29 remark_5_8: 下属5 half of WQ3′ PROVED (s5r58_bt_of_cross, h_W-QD_0f d1cc23eb, 245 lines; cross-ratio ⇒ IsBoundedTurning). Assembled 96ddf6b7, 3025 lines, 1 sorry; waiting on 下属4's s5r58q_cross.
+- 2026-10-29 W-MIX outer layer DONE (下属2): Ch1/S19Mix.lean 5635462a published (740 lines, 23 decls std-3, 0 sorry); s19m_lemma_1_9_of_core gives lemma_1_9 from s19m_core. Stage-2 core sub-interface next.
+- 2026-10-29 W-MIX stage 2 plan (下属2, CORE_PLAN 66f3191a) APPROVED: layer C (C0 core_of_inv, C1 radial, C2 core_of_rep from hrep via diagonal_matrix_coeff_tendsto_projection) + layer R (R1 Haar/Iwasawa, R2 fundamental domain in SL2R, R3 rep continuity, R4 ergodicity + K-link). 3 defs in Ch1/S19Rep approved in principle (audit pending). Split: 下属2 C0–C2 + S19Rep iface + R4; 下属5 R1–R3 after remark_5_8. Cap 5.5k.
+- 2026-10-29 Density route: s3d_poly_dense PROVED (下属6, S3DPolyDense_work 54b4c33d, std-3) and G-DOM s3d_l2sq_dom PROVED (S3DL2Dom_work fc12cd7c, axioms pending). (3)+(4) now depend only on s3d_S1_off. Next (5) s3d_F_cont, then formula sub-interface.
+- 2026-10-29 s3d_formula sub-interface (下属6) S3DFormula_SUBIFACE 332a7d16: structure approved (D0 Model A variation, D1 f-side, D3 β-term → 下属4; D2 welded g-side + assembly → 下属6; explicit pole coefficients). Freeze conditional on (i) symbolic D-IDENT cancellation check, (ii) κ=0,a=0 specialization of each stub matching installed chart-centre formulas.
+- 2026-10-29 s3d_formula sub-interface FROZEN 4d6f2c97 (D2 junk-split defect fixed: single TT-form kernel). Checks: κ=0 specializations vs s4ma/s4hv/s4v/s4pv ✓; exact verification on Möbius family ✓; open in assembly: (I-pole) identity general proof + I₃/I₄+lemma_3_6 core. 下属4 → D0/D1/D3 (cap 3k) after s5r58q_cross. G-DOM std-3.
+- 2026-10-29 (5) design (下属6): s3d_F_cont = S₂ continuity + s1c_continuousOn/12π; new leaf (5b) s3d_S2_cont (ContinuousOn liouvilleS2 T01) FROZEN, owner 下属6 (R43 P1 generalized to base κ ∈ groupO), cap 1.5k.
+- 2026-10-29 W-MIX stage 2: S19REP_INTERFACE d132bb2a + CORE_INTERFACE d2a81d76 FROZEN (defs s19rIwasawa, s19rMeasure = map Iwasawa (vol_ℍ × dθ), s19rDomain; stubs R1a/R1b/R2/R3 → 下属5 (cap 3k), R4 + C0–C2 → 下属2). Mathlib vol_ℍ = dxdy/y² confirmed; IsFundDomain gives a.e. disjointness.
+- 2026-10-29 Density formula D-scout (下属4): D0 GO ~0.6–0.8k; D1+D3 ~1.8–2.7k; cap raised to 3.5k. Route total re-estimate ≈ 14–16k (above the 12k cap): GDOM ≤5k, S1C ≤2k, (5b) ≤1.5k, D0/D1/D3 ≤3.5k, D2/D-IDENT/W-FUB 1.5–2.5k, assembly ~0.5k, done ~1.7k. remark_5_8 assembled 0 sorry (下属5), final compile pending.
+- 2026-10-29 GDOM (d) s3g_dom_of_ext PROVED (下属3, w1.lean c1dc6aa7; decay at ∞ via S5 reciprocal chart as required); ~0.75k of 5k. Next (a), (b), (b′), assembly.
+- 2026-10-29 S₁ continuity on T₀(1) PROVED (下属6, S1C_host 869da593, std-3, ~0.25k of 2k; g-side via invT continuity + s1c_S_G_eq reflection identity + a6_ext_inverse). Next (5b) s3d_S2_cont.
+- 2026-10-29 Ch2 remark_5_8 CLOSED (下属5 + 下属4): S5Remark58 25fb715e installed as Ch2/S5Remark58.lean, original relocated from S5_PeriodMapping (21ad31dd) into S5Remark58 (e6312b5d), root a9b294d3; chain r58 exit 0; std-3. Open 13.
+- 2026-10-29 (5) COMPLETE (下属6): s3d_S2_cont PROVED (S3DS2Cont_work d069b047, std-3, 228 lines; HS-Lipschitz of B₁ via kernel-difference Parseval + t210_step_bound); s3d_F_cont one-liner checked (AsmF 85cb5799). Remaining 下属6: D2, formula assembly (W-FUB, D-IDENT, I-pole, core c), s3d_S1_off assembly.
+- 2026-10-29 D-IDENT paper check CLEAN (下属6): general I-pole identity J = 2πb₀ (via Stokes, λ₁ = 0); core (c) reproduces TT: h = A − 2g′/g + 2/ζ (lemma_3_6 by ι + residue E = 1/ζ − g′/g), total 2∫S(g)R. Formula mathematics fully verified; assembly uses GDOM analytic boundary data.
+- 2026-10-29 D2 plan (下属6): holomorphic ξ = (V̇∘g)/g′ − γ̇ avoids PV; unwelded derivatives (η′+Aη)′; D2.0 pointwise + D2.2 IBP; shared V̇/pole lemma with 下属4's D1. D2-SUBIFACE for audit next.
+- 2026-10-29 GDOM (a) s3g_aw_extend PROVED (下属3, w1 43a59fcf; ~1.2k of 5k); open (b), (b′), assembly. Amendment s3g_D_ext (export of D-point analytic welding data for 下属6) approved; import S5_Embedding instead of copy.
+- 2026-10-29 DEFECT (found by 下属6) in frozen S3DFormula_SUBIFACE 4d6f2c97 s3d_D2: combined kernel ~ (A/2)/h² (not O(1/h)), Bochner integral junk; leader audit missed it. Fix approved: Ċ term → −(1/π)·dz(∫ R·(g′(ζ)²/(g(ζ)−g(z))² − 1/(ζ−z)²)) (integrable Q, PV via outer ∂_z; differentiability must be proved). D2.2 IBP clean: boundary Λ = 0 by tangency of γ̂_t on 𝕊¹.
+- 2026-10-29 GDOM INTERFACE v2 FROZEN 0f6d3af2 (+ import S5_Embedding, + stub s3g_D_ext exporting D-point analytic F/G/H + welding identity for 下属6).
+- 2026-10-29 S3DFormula SUBIFACE v2 FROZEN 26200c6d: D2 kernel → −(1/π)dz∫R·Q (PV); D3: two log-divergent integrals (R ↛ 0 at ∞) merged into one O(|ζ|⁻³) integral. Integrability sweep of all other stubs clean. 下属4 notified.
+- 2026-10-29 GDOM (b) re-estimate ~1.3k (joint C¹ across 𝕊¹ via IFT inverse + annulus Cauchy); header import AppACont approved (statements unchanged).
+- 2026-10-29 W-MIX R1a s19r_iwasawa_embedding PROVED (下属5, ~230 lines). R1b plan approved (left-inv via Iwasawa cocycle; right-inv via modular character or direct generators), est 0.7–0.9k.
+- 2026-10-29 Density formula D0 s3d_D0 PROVED (下属4, S3D/D0.lean cb028e80, std-3, ~220 lines). Shared s3d_pair_variation (with locally-uniform-in-z clause) to be audited with 下属6's D2-SUBIFACE; 下属4 proves it + D1 next.
+- 2026-10-29 W-MIX layer C DONE (下属2): Ch1/S19Core.lean 949836cc published (1280 lines, 20 decls std-3, 0 sorry): s19c_core_of_inv, s19c_radial, s19c_core_of_rep. lemma_1_9 now depends only on hrep (R1–R4).
+- 2026-10-29 D2-SUBIFACE (下属6) S3DD2_SUBIFACE 7f5cbf12 AUDITED + FROZEN: (V) s3d_pair_variation [shared, 下属4 proves; pointwise + locally uniform], (E1) s3d_D2_eta, (E2) s3d_D2_unwelded, (P) s3d_D2_pointwise, (Λ) s3d_D2_lambda; est 1.5k.
+- 2026-10-29 GDOM INTERFACE v3 FROZEN 924522e1 (header-only +import AppACont); (b) tools compiled (s3g_inv_family, annulus_cauchy, cauchy_param, reflect…), w1 12d0a989.
+- 2026-10-29 GDOM (b) s3g_weld_of_ext + (b′) s3g_ext_of_weld PROVED (下属3, w1 5e2bf840, ~2.7k of 5k); only (e) s3g_D_ext + s3d_g_dom host assembly left (~0.45k).
+- 2026-10-29 D2 (下属6): (E1) helpers compile; (P) t-half needs ℝ-differentiability of ∫R·Q via w_a regularity (S35Gamma + IFT), +0.4–0.6k; D2 re-capped 3k. Density route running total estimate ~15–16k.
+- 2026-10-29 GDOM COMPLETE (下属3): S3GDom c6631936 (3197 lines, 43 decls std-3, s3d_g_dom_proof) PUBLISHED as Ch2/S3GDom.lean (not root). 下属3 → W-MIX R3 (cap 1.1k); 下属5 keeps R1b, R2.
+- 2026-10-29 W-MIX R1b s19r_haar + R2 s19r_domain PROVED (下属5, S19Rep aa2478ad, R1a–R2 1169 lines); delivery checks next. Status check sent to 下属1 (W-GAMMA) for possible split to 下属5.
+- 2026-10-29 W-GAMMA status (下属1): ~1.6k proved std-3 (D4, CORE, term B s8g_unfold); remaining DIAG ~1.2k, FV/SES/SYM ~0.65k, D6 1.5–2.5k; split: 下属5 takes s8g_qdot (D6, L² obligation) + s8g_sym after R1a–R2 delivery (cap 2.8k).
+- 2026-10-29 W-MIX R1a–R2 DELIVERED (下属5, DELIVERY_S19Rep/S19Rep.lean aa2478ad, frozen PASS, std-3); R3 (下属3), R4 (下属2) open in that file. Final hrep assembly by 下属2.
+- 2026-10-29 W-GAMMA scout (下属5): s8g_sym GO (0.3–0.45k); s8g_qdot 2.7–3.5k (no pointwise hyperbolic derivative bounds on G_𝔻 g; cusps preclude compact partition; needs Γ-cutoffs, Γ-partition, polarized identity, Γ-Caccioppoli). DECISION: qdot cap 3.5k with sub-interface Q1–Q4 for audit first.
+- 2026-10-29 D2 (E1) s3d_D2_eta PROVED (下属6, S3DD2E1_work a7595059, 956 lines, std-3). Next (P).
+- 2026-10-29 W-MIX R3 s19r_rep PROVED (下属3, S19Rep_R3 e27bbfb7, ~430 lines, std-3); only R4 (下属2) + hrep assembly left for lemma_1_9. 下属3 → D2 (Λ) (+ (E2)) pending split agreement with 下属6.
+- 2026-10-29 W-MIX R4 s19r_erg_link compiles + final assembly s19f_ (enlarge Γ′⊔{±1}, ρ, hrep, s19f_lemma_1_9) written (下属2, S19Rep_full, 2992 lines); set_option to be removed; delivery pending.
+- 2026-10-29 W-GAMMA s8g_sym ACCEPTED (下属5, DELIVERY_WGAMMA/S8Gamma_sym 85835cab, axiom-clean; frozen vs 2d6369e0 checked); 下属1 to splice above s8g_diag. Next 下属5: qdot Q1–Q4 sub-interface.
+- 2026-10-29 W-GAMMA host G/S8Gamma85 3e8b066d (下属1, 2035 lines): sym+unfold+D4+CORE+C2 std-3; open stubs FV, QDOT(下属5), DIAG, SES.
+- 2026-10-29 W-GAMMA QDOT_SUBIFACE a488eaf7 (下属5) APPROVED+FROZEN: Q1 cutoff, Q2 div_zero, Q3 energy_pt (verified: reduces to ∂∂̄logρ=ρ/2), Q4 caccioppoli, QA1 res_data, QA2 fk_data, QA3 equiv (weights checked), QA4 energy_int; s8g_qdot proved from them. Cap 3.5k, report at 2.5k. Approved amendment: IsFuchsian→IsCofinite in QA1/Q1/Q2 if needed.
+- 2026-10-29 W-GAMMA s8g_ses reassigned 下属1→下属2 (cap 0.6k; statement re-derived TRUE, B' = (μκ̄,G(νl̄))+(μν̄,G(κl̄))). 下属1 keeps DIAG+FV.
+- 2026-10-29 lemma_1_9 CLOSED (下属2 S19Rep 820e2dd7 → Ch1/S19Rep, relocated from S1_3_Fuchsian c905ba92; S19Rep e3417115). petersson_average, lemma_8_2, lemma_8_4 CLOSED via new host Ch1/S8Closure f971b1b0 (relocated from S8_FiniteDimensional 060258d0; conditionals + s19f_lemma_1_9). Root afd5fb3f; chain l19 exit 0; all four std-3 (AuditL19). Open 9. chain.ps1: -WaitForResources removed.
+- 2026-10-29 W-GAMMA s8g_ses ACCEPTED (下属2, G/SES/S8Ses eb90e8e6, std-3, frozen checks pass). 下属1 splices. 下属2 → help 下属5 on QDOT (Q1/Q2 candidate).
+- 2026-10-29 QDOT progress (下属5): Q3, QA2, QA3, QA1 PROVED (628 lines s8q incl. sym+assembly; no amendments). Q2 → 下属2 (base WG_base_Q2 f060c54a). 下属5: Q1 → Q4 → QA4.
+- 2026-10-29 Q2 s8q_div_zero → 下属2 (s8d_ helpers, cap 0.9k), spliced by 下属5.
+- 2026-10-29 W-GAMMA host S8Gamma85 98f599ed (2200 lines): SES spliced; 48/54 std-3; open DIAG, FV (下属1), QDOT (下属5/下属2).
+- 2026-10-29 Q2 s8q_div_zero ACCEPTED (下属2, G/Q2/W eaaf355e, 648 lines, std-3); 下属5 splices. 下属2 → density route (coordinate with 下属6).
+- 2026-10-29 D2 (E2) s3d_D2_unwelded (235 l) + (Λ) s3d_D2_lambda (917 l, overrun accepted) ACCEPTED (下属3, D2/S3DD2_W3 5b1c7c1c). Imports S4ReflectedKernel, AppACompleted2 approved. 下属3 → help 下属4 on (V)/D1/D3.
+- 2026-10-29 s3d_S1_off → 下属2 (cap 1k, on master 29319fbc, s3d_formula stubbed). 下属6 keeps (P), gd1 C¹ export, D2 assembly, s3d_formula.
+- 2026-10-29 D1 + generic expansion⇒dz lemma → 下属3 (provisional cap 1k); 下属4 keeps (V) P1–P5 + D3 (cap 3.25k). P1 s3dv_taylor compiles.
+- 2026-10-29 下属3 D1 route: (V) uniform f-clause → Cauchy-jet transfer (s3d2u_step) → 𝒜(f_t) via s3d2u_div; A″ by diff under ∫ (g(𝔻*) at positive distance). Generic expansion→dz lemma (s3d2u_hasFDeriv/s3d2u_dz) shared with 下属4. Cap estimate pending.
+- 2026-10-29 D1 GO (下属3, est 0.6k, cap 0.8k). RULING: shared upstream module (S3DBase) holds (V) stub + generic s3d2u_ helpers (hasFDeriv/dz/step/div), imported by D2 file and formula host; no duplicates; byte-identical relocation approved; 下属6 owns layout.
+- 2026-10-29 Density module graph APPROVED (下属6): S3GDom → Ch2/S3DBase (d2e_, s3d2u_, s3dv_, (V)) → {S3DD2, S3DD1, D0, D3} → formula host → S1_off/install module (relocations of thm_3_8, thm_3_5, cor_3_7, cor_3_9, S4 trio).
+- 2026-10-29 Density graph amendment APPROVED: S3DD0 (D0 cb028e80) upstream of S3DBase; S3DBase extra imports S5WeldingNormalization, S5PlaneJets, S5ConformalFamilyContinuity, S2Core, AppACont, S3DD0, W-NORM (S35WNorm unpublished → use S35Gamma or publish).
+- 2026-10-29 s3d_S1_off ACCEPTED (下属2, S1OFF/W 199f34fb, 147 l). Install must carry proved (G)/(A)/(C) from 下属4 S35Host + s3d_l2sq_dom fc12cd7c. 下属2 → offer D3 / (V) piece to 下属4 (else Q4 for 下属5).
+- 2026-10-29 S35WNorm (63690718, 0 sorry) to be published as Ch2/S35WNorm by 下属3 (approved). S35Host proved blocks in install closure. 下属6 next: gd1_C1, (P).
+- 2026-10-29 Ch2/S35WNorm PUBLISHED by leader (下属3 63690718 unchanged, exit 0). D3 → 下属2 (host Ch2/S3DD3, s3e_); 下属4 keeps (V) P1–P5 (cap 2.75k).
+- 2026-10-29 D3 GO (下属2, est 1.5–1.9k, cap 2k): Coef_R Laurent functional, radius independence, Fubini with combined kernel, one merged integral (no split).
+- 2026-10-29 GFAM_STUB 7ac0bbfc (下属6) APPROVED+FROZEN: (F1) d2g_family_ext, (F2) d2g_family_disc (joint C³ + Jacobian>0, on 𝔻*/𝔻). Assigned 下属3 after D1 (cap 0.6k).
+- 2026-10-29 DEFECT (下属3): D1 s3d_D1 dz clause binder scope — '+ 2c₂/b' parsed inside ∫_{𝔻*} (non-integrable ⇒ 0) ⇒ false. Stub amendment approved: parenthesize first ∫ term only. 下属6 issues formula SUBIFACE v3, re-runs s3d_formula assembly, scans all density interfaces for the same trap.
+- 2026-10-29 Formula SUBIFACE v3 90db155d FROZEN (only D1 dz parenthesization vs v2 26200c6d). binder_scan.py over all density interfaces (master, v3, D2, GFAM, gd1 a2f80358): clean.
+- 2026-10-29 D1 s3d_D1 ACCEPTED (下属3, D1/S3DD1_W3 8f7f712a, 529 l; vs v3 90db155d). 下属3 → GFAM.
+- 2026-10-29 GFAM ACCEPTED (下属3, GFAM/GFAM 3921f01b, 408 l, 0 sorry, std-3). 下属3 → help 下属6 (IFT/(P)) or 下属5 (Q4/QA4).
+- 2026-10-29 (P) s3d_D2_pointwise → 下属3 (cap 0.8k). 下属6: gd1_C1 near done (IFT + slice/diag proved; p_a case on GFAM F2), then D2 assembly + s3d_formula.
+- 2026-10-29 (P) GO (下属3, est 0.75k, cap 0.8k, extendable to 1k on report).
+- 2026-10-29 W-GAMMA s8g_qdot ACCEPTED (下属5, DELIVERY_WGAMMA/S8Gamma_qdot 105edd33, 2970 l file, ~1.8k proof, 81 thm std-3, 0 sorry; Q2 by 下属2). sym_v2 9c6221a5 (comment only). Open W-GAMMA: DIAG, FV (下属1).
+- 2026-10-29 W-GAMMA host S8Gamma85 aa69b255 (4747 l, 117 thm, 112 std-3): qdot spliced. Open FV (下属1), DIAG → sub-interface (s8g_dg_rep 下属1, s8g_dg_eval 下属5) pending audit.
+- 2026-10-29 DIAG_SUBIFACE 5fa834a3 (下属1) APPROVED+FROZEN: s8g_fv_rep, s8g_dg_rep (下属1, cap 1.4k); s8g_fv_eval, s8g_dg_eval (下属5, cap 1.3k). Algebra checked (A+B−C via qdot). Move of s8q_/s8d_ block above FV_REP approved.
+- 2026-10-29 s3d_D2_gd1_C1 ACCEPTED (下属6, G/S3DGd1_work eca60052, 532 l). Graph: Ch2/S3DGFam (GFAM 3921f01b) upstream of S3DD2. 下属6 next: D2 assembly, s3d_formula.
+- 2026-10-29 DIAG_SUBIFACE amended (下属1): FV_REP/FV_EVAL dropped (S8 orientation: ε upper slot ⇒ FV pointwise 0 via p71 clause 2); s8g_fv direct (下属1, cap 0.4k). 下属5: dg_eval only (cap 0.7k). DIAG_SUBIFACE2 md5 pending.
+- 2026-10-29 DIAG_SUBIFACE2 499821b7 FROZEN (dg_rep/dg_eval identical to 5fa834a3; fv/diag/qdot/ses/sym identical to 2d6369e0).
+- 2026-10-29 (Λ-INT) s3d_D2_lambda_int stub LINT_STUB 2258cb32 (下属6) APPROVED+FROZEN: integrability of Λ integrand on 𝔻* (needed: (Λ) used junk branch). Owner 下属3 after (P), cap 1.2k. D2 assembly written modulo stub (S3DD2Asm_work).
+- 2026-10-29 DIAG_SUBIFACE2 compile confirmed (8 sorry). Host S8Gamma85 f5b0bb7e (4801 l, 119 thm). Open: s8g_fv, s8g_dg_rep (下属1), s8g_dg_eval (下属5).
+- 2026-10-29 (P) checkpoint 0.63k (下属3): clauses 1–2 done (d2p_tpart); remaining tbar+body ~0.16k; cap extended to 1k.
+- 2026-10-29 (P) s3d_D2_pointwise ACCEPTED (下属3, D2P/w dfea00f4, 880 l). 下属3 → Λ-INT.
+- 2026-10-29 s8g_dg_eval ACCEPTED (下属5, DELIVERY_DGEVAL/dg_eval d2acf6d9, 281 l, std-3). 下属5 → help 下属4 on (V) (else 下属1 dg_rep).
+- 2026-10-29 Λ-INT triage (下属3): TRUE, NO-GO at 1.2k via strong route (W1: R only C², Beurling↔PV lemmas need C^∞; W2: no PV-derivative lemma). Restructure (b) rejected (integrability of T genuinely needed). Leader proposes route (iii): ∂gd1 ∈ L² by duality (gd1 C¹ from gd1_C1; IBP vs smooth test φ; Fubini; Hφ isometry; duality lemma) — scout requested.
+- 2026-10-29 P5_SUBSTUB 035d8eb1 (下属4) APPROVED+FROZEN: P5a s3dv_gamma_asym, P5b s3dv_vdot_asym → 下属5 (cap 450). 下属4 P1–P4+assembly cap 2.3k.
+- 2026-10-29 D3 s3d_D3 ACCEPTED (下属2, G/D3 W2 5c74c485, body e7114245, 1011 l, merged integral kept). 下属2 → help 下属1 dg_rep (else 下属4 P1–P4).
+- 2026-10-29 Λ-INT route (iii) GO (下属3, est 0.85–1.0k, cap 1.2k): dz γ = hilbertH(W1_E) + poly terms a.e. via IBP + Fubini + fundamental lemma; no R smoothness, no PV lemma.
+- 2026-10-29 V_IFACE 0ab5fec4 (下属4) APPROVED+FROZEN: V-A s3dv_expand (∃Q₁Q₂, cap 1.2k), V-B s3dv_pin (asymptotic pin via P5a/P5b + ġ=O(|z|) from reciprocal chart, cap 0.35k); (V) assembled (20 l).
+- 2026-10-29 Λ-INT correction (下属3): R ∉ L²(𝔻*) at ∞ (only ρ-weighted L²); use W = R/ζ² ∈ L²∩L∞, γ̇ = y²Γ + Dn(y)(c₀+c₁y). Est 1.0–1.1k, cap 1.2k.
+- 2026-10-29 s8g_fv ACCEPTED (下属1, fv.txt+fv_main.txt, 368 l, std-3); host 819e7c09. DR_SPLIT 48e6bfa9 FROZEN: s8g_dr_line1 → 下属2 (cap 0.55k); 下属1 line2+pt+assembly (0.45k). V-B s3dv_pin → 下属5 after P5 (cap 0.35k).
+- 2026-10-29 s3d_D2 assembly ACCEPTED (下属6, G/S3DD2Asm_work d52714e8; open stub only Λ-INT). s3x_dom_data → S3DBase approved. 下属6 next: s3d_formula sub-interface (pole identity, I₂, I₄, W-FUB, h-core, algebra) for audit.
+- 2026-10-29 W-GAMMA host S8Gamma85 ffb0c299 (5419 l, 126 thm, 121 std-3): dg_eval spliced; only s8g_dg_rep open (line1 下属2, line2+pt+asm 下属1).
+- 2026-10-29 s8g_dr_line1 cap raised to 1.0k (下属2 scout: transport of P(R) 𝔻↔𝕌 not exported; domination via polydisc + Cauchy since X,Y ∉ L²).
+- 2026-10-29 S3DFormulaAsm_SUBIFACE 22a6d549 (下属6) APPROVED+FROZEN: F-POLE, F-I2 (re-derived ✓), F-I4, F-FUB, F-H (trivial-case sanity ✓). Owners: F-FUB+assembly 下属6; F-I2/F-I4 下属1 (after dg_rep); F-POLE/F-H 下属5 (after P5/V-B). Caps pending estimates.
+- 2026-10-29 Formula-asm caps: F-FUB 1.3k + asm 0.45k (下属6), F-I2 0.4k + F-I4 0.7k (下属1 after dg_rep), F-POLE 0.9k (下属5 after V-B), F-H 1.0k (下属3 after Λ-INT).
+- 2026-10-29 P5 (P5a+P5b) ACCEPTED (下属5, DELIVERY_P5/P5_block 7270c0d4, ~570 l, overrun accepted). 下属5 → V-B.
+- 2026-10-29 V-B route OK (下属5; growth from reciprocal chart, uniqueness of fderiv); cap 0.55k.
+- 2026-10-29 s8g_dg_rep (下属1 part: herm, line2, rhoint, assembly; 422 l) ACCEPTED; host S8Gamma85 02064ad0 (130 thm, 124 std-3), only s8g_dr_line1 (下属2) open. Leader installs (relocate thm_8_5, eq_8_1).
+- 2026-10-29 W-GAMMA install plan: Ch1/S8Gamma85 (imports S7Cor79, S8Lemma84Conditional); relocate thm_8_5, eq_8_1 from S8_FiniteDimensional onto s8g_thm_8_5/s8g_eq_8_1 (statements pre-checked byte-identical).
+- 2026-10-29 V-A progress (下属4, VA.lean d24343a6, ~560 own l): Taylor, reps, Ẇ, transport, kernel, integrability done. Split: (d) g-side → sub-stub s3dv_expand_g (to 下属5 after V-B; F-POLE to be rebalanced); 下属4 keeps (a)–(c)+assembly (≈1.0k remaining).
+- 2026-10-29 dr_line1 cap 1.1k (下属2, draft ~1.05k).
+- 2026-10-29 G_SUBSTUB 097b40ae (下属4) APPROVED+FROZEN: s3dv_expand_g with explicit Q₁=(1/π)∫Rg′²AB/(g(1+Bg)(Ag−1))+∂_tP·d, Q₂=∂_t̄P·d → 下属5 after V-B (cap 0.7k). Caveat: true only if explicit Q = c₂/b (V-B pin) — mismatch ⇒ stop and report. 下属5 queue: V-B → expand_g → F-POLE (rebalance possible).
+- 2026-10-29 G_SUBSTUB sanity at κ=a=0 passes (下属4): I₂=0, P₁=c₂, P₂=c₂′, b=1 ⇒ Q = c₂/b, c₂′/b.
+- 2026-10-29 Λ-INT s3d_D2_lambda_int ACCEPTED (下属3, LINT/w 46a77599, 981 l; route (iii)). D2 now fully proved modulo (V). 下属3 → F-H.
+- 2026-10-29 Formula host import TakhtajanTeo.Ch2.S3Remark310 approved (F-I2 uses s310_w2_series/s310_ae_seriesF; no cycle).
+- 2026-10-29 F-I2 s3f_I2 ACCEPTED (下属1, FI2/s3f_I2 5135dae0, 358 l, std-3). 下属1 → F-I4.
+- 2026-10-29 F-I4 triage (下属1): TRUE but 1.2–1.8k (I ~ 1/(|z|−1) for bounded R; needs weighted L² kernel bound; Laurent/Parseval identity). Decision: (b) re-split after checking reuse of G-DOM/s3x_dom_data L² facts (I is the t̄-variation of 𝒜(g)); (c) weakening rejected; F-I4 cap 1.5k.
+- 2026-10-29 F-I4 plan approved (下属1, est 0.6–0.9k, cap 1.0k): conj 1 via D2 unwelded + d2p_tbar + G-DOM L² + d2l_main(R:=0); identity on |z|>r then r→1. LINT refactor approved: 下属3 factors d2l_A_bounds (+G/S setup) as theorems (statement of lambda_int unchanged).
+- 2026-10-29 s3d_formula assembly ACCEPTED modulo stubs (下属6, G/S3DFormulaAsm_work e367b232, 424 l). F-FUB issue: honest PV route ≥1.5k; (b) re-cut (regular-kernel F-FUB′, Λ cancellation via D2's Λ/Λ-INT in assembly) approved in principle pending paper check + audit; keep F-I4 unchanged if possible; consider 下属3's Λ-INT generic weak-derivative lemma.
+- 2026-10-29 F-FUB route (a′) approved (下属6; re-cut (b) dropped; F-I4 unchanged): regular kernel + d2l_weak (下属3) + hilbertH_pairing_symm + H-vanishing lemma (H(1_E conj A)=0 a.e. on E via Pompeiu; checked). F-FUB cap 2.0k; H-vanishing stub → 下属2 after dr_line1.
+- 2026-10-29 Formula host import TakhtajanTeo.Ch2.S3S1Tilde approved (F-I4, s35_ext_expansion).
+- 2026-10-29 Λ-INT refactor (下属3): LINT/w c496491f replaces 46a77599 (statement unchanged); new theorems d2l_m0, d2l_ext, d2l_R_data, d2l_A_bounds.
+- 2026-10-29 HVANISH_STUB 78887886 (下属6) APPROVED+FROZEN: s3f_hvanish (hilbertH = ∂-version ✓; unbounded support ⇒ annulus truncation + L² limit). → 下属2 after dr_line1, cap 0.5k.
+- 2026-10-29 F-FUB polynomial terms cancel exactly (下属6; verified: divided difference of Dn = q ⇒ dz C = −πH(1_E W)).
+- 2026-10-29 V-B s3dv_pin ACCEPTED (下属5, DELIVERY_VB/VB_block da9619a4, 324 l). 下属5 → s3dv_expand_g.
+- 2026-10-29 s8g_dr_line1 (下属2, DR1/dr_line1 bf123ee8, 1051 l, std-3) accepted pending removal of 2 'fun ⟨⟩' binders (l.23, 74); then 下属1 final host + leader install of thm_8_5/eq_8_1.
+- 2026-10-29 s8g_dr_line1 ACCEPTED final (下属2, dr_line1 7172d196, binders fixed).
+- 2026-10-29 s3f_hvanish: 下属2 scout 0.9–1.1k (annulus Pompeiu, genPartials bridge, primitive). Leader route: d2l_weak (W = conj A) + explicit Laurent computation C(y)=π Σ āₙȳ^{1−n}/(n−1) (antiholomorphic) ⇒ H=0 a.e.; cap 0.7k.
+- 2026-10-29 s3dv_expand_g route switched (下属5): uniformity from reciprocal chart + pointwise identification via grp_wAS_mul/grep + D0 + uniqueness; est 0.65k, cap 0.7k.
+- 2026-10-29 thm_8_5 + eq_8_1 CLOSED (W-GAMMA): S8Gamma85 335c0a60 (下属1; 下属5 qdot/sym/dg_eval, 下属2 SES/Q2/dr_line1) installed as Ch1/S8Gamma85 (2c745558), relocated from S8_FiniteDimensional (31e8e07f), root f12bc4f9; chain g85 exit 0; std-3 (AuditG85). Open 7 (thm_3_8 cluster).
+- 2026-10-29 V-A s3dv_expand ACCEPTED (下属4, S3D/HOST e350afbe, VA 202326d9, ~1.19k own l; Q matches pin). (V) only waits on s3dv_expand_g (下属5). F-POLE rebalanced → 下属4 (cap 0.9k).
+- 2026-10-29 F-H s3f_h ACCEPTED (下属3, FH/FH_DELIVERY 26677bba, 744 l). 下属3 → F-FUB piece (if 下属6 agrees) else install staging in collaboration/下属3/STAGE.
+- 2026-10-29 F-POLE scout (下属4): TRUE (Möbius + numerical checks), direct route 1.4–1.9k. Leader route: F-POLE = u⁻² coefficient of F-H (u²·F-H, u→∞, DCT; needs uniform Grunsky kernel bound |K|≤C/(|u|²|ω|²)). Reorder s3f_h above s3f_pole approved.
+- 2026-10-29 FBC_STUB d6609051 (下属6) APPROVED+FROZEN: s3fc_cauchy_dz (C¹ + dz C = −πH a.e.) → 下属3 (cap 0.4k). FB-E/FB-D with 下属6.
+- 2026-10-29 F-POLE route (下属4): s3fh_smoothQ at z=0 on ι-side (u=∞), no limit; est 0.45–0.6k, cap 0.7k. Approved: drop unused hz0 from 下属3's s3fh_smoothQ (pre-install generalization; s3f_h unchanged).
+- 2026-10-29 FH v2 398fdde7 (下属3): hz0 dropped from s3fh_smoothQ; s3f_h unchanged; replaces 26677bba.
+- 2026-10-29 FB-C s3fc_cauchy_dz ACCEPTED (下属3, FBC/FBC_DELIVERY a0db95fd, 329 l). 下属3 → STAGE assembly (collaboration/下属3/STAGE).
+- 2026-10-29 Install plan: Ch2/S3Density (master 29319fbc decls + s3z_ copies of thm_3_5, cor_3_7, cor_3_9, thm_4_1, cor_4_2, wpPotential_spec; s3d_thm_3_8 for thm_3_8). Lower files S3_Variations 421ae100, S4_WPPotential 4c4df473; reloc_g.py 70f0b3ca. 下属3 STAGE mirrors only.
+- 2026-10-29 FBE_DD_STUB b7b7c02a (下属6) APPROVED+FROZEN: s3fe_dd_lower (global lower-Lipschitz for g on 𝔻*) → 下属3 (cap 0.35k, before STAGE).
+- 2026-10-29 F-POLE s3f_pole ACCEPTED (下属4, FPOLE/fp_part c99bf469, 369 l, std-3; via s3fh_smoothQ at z=0). 下属4 → offer FB-E to 下属6.
+- 2026-10-29 FB-D PROVED (下属6, G/FBD_work). FBE_STUB a239bb42 APPROVED+FROZEN: s3fe_ext → 下属4 (cap 0.6k). 下属6 keeps FB-0 + s3f_fub glue (~0.25k).
+- 2026-10-29 FB-D ACCEPTED (下属6, G/FBD_work 93403a24, std-3). 下属6 → FB-0 + s3f_fub glue.
+- 2026-10-29 s3fe_dd_lower ACCEPTED (下属3, FBE/FBE_DD_DELIVERY fb9d1a5b, 218 l). STAGE: extract sorry-free Ch2/S35Reused ((G)/(A)/(C) + deps) from 下属4 S35Host d088f78f (which has 4 retired sorry stubs); must verify no dependence on retired stubs.
+- 2026-10-29 FB-E triage (下属4): TRUE, 1.2–1.5k (local regularised kernel + far-field Q=O(|ζ|⁻³) cancellation). (B) hRdec REJECTED (R→nonzero const at ∞; false). (C): far-field decay → sub-stub s3fe_Q_decay for 下属2 (cap 0.5k); 下属4 keeps rest (cap 1.0k).
+- 2026-10-29 FB-D confirmed independent of R-decay (uses hRb, hRm, ρ-weighted L²). F-FUB glue host G/FFUB_host (FB-D+FB-C+stubs hvanish/s3fe_ext) near-compiling (3 small errors).
+- 2026-10-29 QDECAY_STUB c7b13a42 (下属4) APPROVED+FROZEN: s3fe_Q_decay (Qk = O(|ζ|⁻³) uniformly on compact K; cancellation re-derived) → 下属2 after hvanish (cap 0.5k). 下属4 FB-E inputs 1+3 (cap 1.0k).
+- 2026-10-29 STAGE: S35Reused extracted (下属3; 40 blocks from S35Host, 0 sorry, std-3, no retired stubs). s3d_thm_3_8 byte-identical to thm_3_8. Ch2 originals of the 7 unused downstream (Ch1.thm_3_8 is distinct). s3z_ plan set.
+- 2026-10-29 F-I4 s3f_I4 ACCEPTED (下属1, FI4/s3f_I4 d0afd559, 704 l). s3fe_Q_decay rebalanced → 下属1 (cap 0.5k).
+- 2026-10-29 s3f_fub ACCEPTED (下属6, G/FFUB_host e017c680; FBD_BLOCK a8f7a271, FFUB_GLUE e63157b4) modulo hvanish/s3fe_ext stubs. Remaining open in density: s3dv_expand_g (下属5), s3fe_ext (下属4), s3fe_Q_decay (下属1), s3f_hvanish (下属2). 下属6+下属3 → STAGE.
+- 2026-10-29 FOUND (下属3): Ch2/S3WConst (6a4bf6a9) has no .olean (never published). Leader publish attempt exit 75; retrying.
+- 2026-10-29 s3f_hvanish ACCEPTED (下属2, HV/HV_block 90cf37da, 549 l, std-3). 下属2 → help 下属4 (FB-E) or 下属5 (expand_g).
+- 2026-10-29 STAGE manifest (下属3): S3DD0 cb028e80, S3DGFam 3921f01b, S3DBase e7b5c92f (expand_g open), S3DD2 91bfc882, S3DD1 2adfa261, S3DD3 2be82d48, S3DFormula 4c4b19cc (Q_decay, s3fe_ext open), S35Reused d64069c5 (imports S35WNorm, dedup), S3DS1Cont 869da593, S3DS2Cont d069b047, S3DPolyDense 54b4c33d, S3Density 2ded20dd. FULL parked pending slot.
+- 2026-10-29 FULL staged chain (下属3 chk/FULL 25d5c127, 16876 l) compiled by 下属6: EXIT 0; sorry only s3dv_expand_g (下属5), s3fe_Q_decay (下属1), s3fe_ext (下属4); all targets sorryAx only via these.
+- 2026-10-29 s3dv_expand_g ACCEPTED (下属5, DELIVERY_VG/G_PROOF 92bc771c, 889 l): (V) s3d_pair_variation fully proved, std-3. Remaining density stubs: s3fe_Q_decay (下属1), s3fe_ext (下属4).
+- 2026-10-29 s3fe_Q_decay ACCEPTED (下属1, QD/s3fe_Q_decay 525f037d, 315 l, std-3). Only s3fe_ext (下属4) remains in the density chain.
+- 2026-10-29 s3fe_Q_decay comment-only update b376cb55 (supersedes 525f037d); use b376cb55 in STAGE.
+- 2026-10-29 (V) CLOSED: 下属4 S3D/HOST 3657d2de, 0 sorry, s3d_pair_variation std-3.
+- 2026-10-29 FB-E s3fe_ext ACCEPTED (下属4, FBE/FBE_block ee2c3e9b, 1161 l). ALL density pieces delivered. 下属3: final STAGE splice + FULL + manifest → leader install.
+- 2026-10-29 thm_3_8 cluster CLOSED: 12 density modules installed (S3DD0…S3Density per 下属3 FINAL_MANIFEST 23696fed), S3WConst published, 7 originals relocated into Ch2/S3Density (39f0c4f8) from S3_Variations/S4_WPPotential; root 34bf32b2; chain dens exit 0; all 7 std-3 (AuditDens). PROJECT: 0 sorry in TakhtajanTeo. Next: final lake build certification.
+
+## 2026-10-29 CERTIFIED
+Final `lake build TakhtajanTeo`: LAKE EXIT 0, 10405 jobs, 0 'declaration uses sorry', 0 errors (log collaboration/leader_g/final_lake_build.log, 67 min). Program G COMPLETE: 0 sorry, no axiom decls. No-Lean hold lifted.
+

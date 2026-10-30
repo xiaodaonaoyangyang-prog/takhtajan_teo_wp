@@ -1,0 +1,6 @@
+.lake/
+re2.txt
+collaboration/*
+!collaboration/*.md
+!collaboration/CompileWithSlot.ps1
+!collaboration/statement_changes/
