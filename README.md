@@ -49,6 +49,13 @@ in [`collaboration/ERRATA.md`](collaboration/ERRATA.md) and
 Layout: `TakhtajanTeo/Ch1`, `TakhtajanTeo/Ch2`, `TakhtajanTeo/Appendix`, with the root module
 [`TakhtajanTeo.lean`](TakhtajanTeo.lean). [`ARCHITECTURE.md`](ARCHITECTURE.md) describes the modelling conventions.
 
+## License
+
+The Lean code and documentation in this repository are released under the [Apache License 2.0](LICENSE).
+
+The text of the memoir quoted in `collaboration/TakhtajanTeo2006_annotated.md` belongs to its authors and publisher.
+It is not covered by this license.
+
 ## Keywords
 
 Lean 4 · Mathlib · formalization · formal verification · interactive theorem proving · formalized mathematics ·
