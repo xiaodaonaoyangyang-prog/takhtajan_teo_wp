@@ -2,7 +2,7 @@
 
 Merged 2026-10-28 from `collaboration/下属1..6/DIFF_*.md` (build 10215 + round-3 statement fixes). 172 differences: **P 31** (the memoir is wrong), **H 22** (hypothesis the memoir uses implicitly), **F 119** (formalization only; the memoir is fine).
 
-Line numbers `TT:n` refer to `source/TakhtajanTeo2006.md`. The annotated copy `collaboration/TakhtajanTeo2006_annotated.md` carries a marker after each P and H place.
+Line numbers `TT:n` refer to `source/TakhtajanTeo2006.md`. The annotated copy `collaboration/TakhtajanTeo2006_annotated.md` (kept locally; not in the public repository, for copyright reasons) carries a marker after each P and H place.
 
 ## P — places where the memoir is wrong
 

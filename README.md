@@ -53,8 +53,8 @@ Layout: `TakhtajanTeo/Ch1`, `TakhtajanTeo/Ch2`, `TakhtajanTeo/Appendix`, with th
 
 The Lean code and documentation in this repository are released under the [Apache License 2.0](LICENSE).
 
-The text of the memoir quoted in `collaboration/TakhtajanTeo2006_annotated.md` belongs to its authors and publisher.
-It is not covered by this license.
+The memoir itself is © the authors and the American Mathematical Society. Its text is not included in this
+repository. Docstrings cite it by item number and line (`TT:<line>`) and quote only short phrases.
 
 ## Keywords
 
